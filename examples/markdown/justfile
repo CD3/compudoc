@@ -1,0 +1,12 @@
+list:
+  just --list
+
+run:
+  just preprocess
+  just build
+
+preprocess:
+  compudoc slides.md
+
+build: preprocess
+  mdSlides slides-rendered.md

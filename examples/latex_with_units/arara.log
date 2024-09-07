@@ -1,0 +1,75 @@
+02 Sep 2024 20:57:54.073 INFO  - Welcome to arara 6.1.5!
+02 Sep 2024 20:57:54.075 INFO  - -----------------------------------------------------------------
+02 Sep 2024 20:57:54.075 DEBUG - ::: arara @ /usr/share/texlive/texmf-dist/scripts/arara
+02 Sep 2024 20:57:54.075 DEBUG - ::: Java 11.0.23, Ubuntu
+02 Sep 2024 20:57:54.075 DEBUG - ::: /usr/lib/jvm/java-11-openjdk-amd64
+02 Sep 2024 20:57:54.075 DEBUG - ::: Linux, amd64, 6.5.0-44-generic
+02 Sep 2024 20:57:54.075 DEBUG - ::: user.home @ /home/cclark
+02 Sep 2024 20:57:54.075 DEBUG - ::: CF @ [none]
+02 Sep 2024 20:57:54.076 DEBUG - -----------------------------------------------------------------
+02 Sep 2024 20:57:54.076 INFO  - Processing "main.tex" (size: 803 B, last modified: 09/02/2024 20:57:52), please wait.
+02 Sep 2024 20:57:54.078 INFO  - I found a potential pattern in line 1: pdflatex
+02 Sep 2024 20:57:54.080 INFO  - All directives were validated. We are good to go.
+02 Sep 2024 20:57:54.080 INFO  - -------------------------- DIRECTIVES ---------------------------
+02 Sep 2024 20:57:54.081 INFO  - Directive(identifier='pdflatex', parameters={reference=/home/cclark/Code/sync/projects/dynodoc/examples/latex_with_units/main.tex},conditional={ NONE }, lineNumbers=[1])
+02 Sep 2024 20:57:54.081 INFO  - -----------------------------------------------------------------
+02 Sep 2024 20:57:54.082 INFO  - I am ready to interpret rule "pdflatex".
+02 Sep 2024 20:57:54.083 INFO  - Rule location: "/usr/share/texlive/texmf-dist/scripts/arara/rules"
+02 Sep 2024 20:57:54.181 INFO  - I am ready to interpret task "PDFLaTeX engine" from rule "PDFLaTeX".
+02 Sep 2024 20:57:54.181 INFO  - System command: [pdflatex, main.tex] @ /home/cclark/Code/sync/projects/dynodoc/examples/latex_with_units
+02 Sep 2024 20:57:54.424 INFO  - ---------------------- BEGIN OUTPUT BUFFER ----------------------
+02 Sep 2024 20:57:54.424 INFO  - This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./main.tex
+LaTeX2e <2021-11-15> patch level 1
+L3 programming layer <2022-01-21>
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2021/10/04 v1.4n Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/siunitx/siunitx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/translations/translations.sty
+(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/physics/physics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/xparse/xparse.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/pdftex.def)))
+(/usr/share/texlive/texmf-dist/tex/latex/preprint/fullpage.sty)
+No file main.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/color.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg))
+(/usr/share/texlive/texmf-dist/tex/latex/translations/translations-basic-dictio
+nary-english.trsl)
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./main.aux) )</usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmr17.pfb>
+Output written on main.pdf (1 page, 46510 bytes).
+Transcript written on main.log.
+
+02 Sep 2024 20:57:54.425 INFO  - ----------------------- END OUTPUT BUFFER -----------------------
+02 Sep 2024 20:57:54.426 INFO  - Task result: SUCCESS
+02 Sep 2024 20:57:54.428 INFO  - Total: 0.46 seconds

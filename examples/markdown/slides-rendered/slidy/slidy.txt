@@ -1,0 +1,90 @@
+##################
+# Sample Slide Show (S9) template package manifest using Slidy W3C Blue style package
+# Change as desired/needed
+#
+# Configured to use the following headers in slides.html.erb:
+#
+# author: Your Name Here
+# title: Your Slide Show Title Here
+# copyright: footer: Your Footer Here
+#
+# Questions? Comments?
+# Send them along to the wwwmake forum/mailing list.
+# http://groups.google.com/group/wwwmake
+
+
+__file__.html slides.blank.html
+__file__.w3c.html slides.w3c.html
+
+# scripts
+
+scripts/slidy.js
+
+# styles
+
+styles/slidy.css
+styles/w3c-blue.css
+
+# help
+
+help/help.html
+help/help.html.ca
+help/help.html.de
+help/help.html.en
+help/help.html.es
+help/help.html.fr
+help/help.html.hu
+help/help.html.nl
+help/help.html.pl
+help/help.html.pt-br
+help/help.html.pt_br
+help/help.html.sv
+help/help.pt-br.html
+
+# graphics
+
+graphics/bullet-fold-dim.gif
+graphics/bullet-fold-dim.png
+graphics/bullet-fold.gif
+graphics/bullet-fold.png
+graphics/bullet-nofold-dim.gif
+graphics/bullet-nofold-dim.png
+graphics/bullet-nofold.gif
+graphics/bullet-nofold.png
+graphics/bullet-unfold-dim.gif
+graphics/bullet-unfold-dim.png
+graphics/bullet-unfold.gif
+graphics/bullet-unfold.png
+graphics/bullet.png
+
+graphics/example.png
+graphics/example.svg
+
+graphics/face1.gif
+graphics/face2.gif
+graphics/face3.gif
+graphics/face4.gif
+
+graphics/fold-bright.gif
+graphics/fold-dim.bmp
+graphics/fold-dim.gif
+graphics/fold.bmp
+graphics/fold.gif
+
+graphics/icon-blue.png
+graphics/keys2.jpg
+
+graphics/nofold-dim.bmp
+graphics/nofold-dim.gif
+graphics/nofold.bmp
+graphics/unfold-bright.gif
+graphics/unfold-dim.bmp
+graphics/unfold-dim.gif
+graphics/unfold.bmp
+graphics/unfold.gif
+
+graphics/w3c-logo-blue.gif
+graphics/w3c-logo-blue.svg
+graphics/w3c-logo-slanted.jpg
+graphics/w3c-logo-white.gif
+graphics/w3c-logo-white.svg
