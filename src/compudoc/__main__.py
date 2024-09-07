@@ -37,7 +37,7 @@ def main(
         str, typer.Option("--config-file", help="Specify configuration file to load")
     ] = None,
     strip_comment_blocks: Annotated[
-        str, typer.Option(help="Remove comment blocks from document when rendering.")
+        bool, typer.Option(help="Remove comment blocks from document when rendering.")
     ] = False,
     comment_line_str: Annotated[
         str, typer.Option(help="Use TEXT to identify comment lines.")

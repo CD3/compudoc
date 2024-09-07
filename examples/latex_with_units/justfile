@@ -3,7 +3,7 @@ build:
   just compile
 
 preprocess:
-  poetry run compudoc main.tex
+  rye run compudoc main.tex
 
 compile:
   arara main-rendered.tex

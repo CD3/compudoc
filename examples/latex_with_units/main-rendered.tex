@@ -12,6 +12,7 @@
 \title{On...}
 \begin{document}
 \maketitle
+
 % {{{ {}
 % import pint
 % ureg = pint.UnitRegistry()
@@ -21,6 +22,7 @@
 Laser exposures are characterized by a power ($\Phi$), energy ($Q$), radiant exposure ($H$),
 or irradiance ($E$). Each of these four radiometric quantities are related to each other
 through the exposure area and duration.
+
 % {{{ {}
 % power = Q_(100,'mW')
 % duration = Q_(0.25,'s')
@@ -30,15 +32,5 @@ through the exposure area and duration.
 For example, if a laser outputs a power of \SI[]{100}{\milli\watt} for a
 duration of \SI[]{0.25}{\second}, then the energy delivered during the
 exposure will be \SI[]{25.0}{\milli\joule}.
-% {{{ {}
-% import pathlib
-% text = pathlib.Path("file-to-include.txt").read_text()
-% }}}
-\begin{verbatim}
-This is text
-included from another
-file.
-
-\end{verbatim}
 
 \end{document}

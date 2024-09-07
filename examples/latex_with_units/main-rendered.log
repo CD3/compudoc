@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.4.19)  4 SEP 2024 23:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.3.16)  7 SEP 2024 11:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -250,23 +250,22 @@ e
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./main-rendered.aux) ) 
 Here is how much of TeX's memory you used:
- 6731 strings out of 480171
- 152578 string characters out of 5894489
- 413919 words of memory out of 5000000
- 24647 multiletter control sequences out of 15000+600000
- 473590 words of font info for 44 fonts, out of 8000000 for 9000
+ 6728 strings out of 480171
+ 152548 string characters out of 5894489
+ 412919 words of memory out of 5000000
+ 24645 multiletter control sequences out of 15000+600000
+ 473422 words of font info for 43 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  71i,6n,79p,340b,510s stack positions out of 5000i,500n,10000p,200000b,80000s
 </u
 sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/sha
 re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texl
 ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on main-rendered.pdf (1 page, 59791 bytes).
+mf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb>
+Output written on main-rendered.pdf (1 page, 47887 bytes).
 PDF statistics:
- 33 PDF objects out of 1000 (max. 8388607)
- 19 compressed objects within 1 object stream
+ 28 PDF objects out of 1000 (max. 8388607)
+ 16 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
