@@ -1,10 +1,23 @@
 import asyncio
+import contextlib
+import os
+from pathlib import Path
 
 import pytest
 
 from compudoc.document import *
 from compudoc.execution_engines import *
 from compudoc.parsing import *
+
+
+@contextlib.contextmanager
+def workingdir(d):
+    od = os.getcwd()
+    os.chdir(d)
+    try:
+        yield
+    finally:
+        os.chdir(od)
 
 
 @pytest.fixture
@@ -153,3 +166,35 @@ Line 1
 Line 2: x = 1.2
 """
     )
+
+
+def test_include_file_filter(tmp_path):
+    with workingdir(tmp_path):
+        Path("include.txt").write_text(r"""INCLUDED FROM FILE""")
+
+        rendered_text = render_document(
+            """\
+    % {{{
+    % import pathlib
+    % def include_filter(filename):
+    %   return pathlib.Path(filename).read_text()
+    %
+    % jinja2_env.filters['include'] = include_filter
+    % }}}
+    This is {{"include.txt" | include}}!
+    """
+        )
+
+        assert (
+            rendered_text
+            == """\
+    % {{{
+    % import pathlib
+    % def include_filter(filename):
+    %   return pathlib.Path(filename).read_text()
+    %
+    % jinja2_env.filters['include'] = include_filter
+    % }}}
+    This is INCLUDED FROM FILE!
+    """
+        )

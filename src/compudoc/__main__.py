@@ -1,5 +1,6 @@
 import pathlib
 
+import fspathtree
 import jinja2
 import typer
 from typing_extensions import Annotated, List
@@ -71,13 +72,13 @@ def main(
         print(f"Could not determine filetype for {input_file}")
         raise typer.Exit(1)
 
-    print(f"Detected filetype: {filetype}")
-    print(f"Comment string: {comment_line_strs[filetype]}")
-
     if filetype == "markdown":
         strip_comment_blocks = True
     if comment_line_str is None:
         comment_line_str = comment_line_strs[filetype]
+
+    print(f"Detected filetype: {filetype}")
+    print(f"Comment string: {comment_line_str}")
 
     print(f"Rendering document {input_file} -> {output_file}")
     input_text = input_file.read_text()

@@ -12,7 +12,7 @@ class Jinja2:
         return textwrap.dedent(
             """
         import jinja2
-        jinja2_env = jinja2.Environment()
+        jinja2_env = jinja2.Environment(keep_trailing_newline=True)
         def fmt_filter(input, spec=""):
           return ("{"+f":{spec}"+"}").format(input)
 

@@ -12,6 +12,7 @@ dependencies = [
     "pytest>=8.3.2",
     "black>=24.8.0",
     "pint>=0.24.3",
+    "fspathtree>=1.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"

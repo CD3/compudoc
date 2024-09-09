@@ -8,11 +8,6 @@ from .parsing import *
 from .template_engines import *
 
 
-class jinja2_filters:
-    def fmt(spec):
-        return ""
-
-
 def render_document(
     text,
     comment_line_str="%",
@@ -76,8 +71,7 @@ def render_document(
                 # 'this is some rendered text\nwith a new line in it'
                 #
                 # use exec to make it a string.
-                # note: jinja2 seems to strip trailing new line
-                exec(f"rendered_chunks.append( {rendered_chunk} + '\\n' )")
+                exec(f"rendered_chunks.append( {rendered_chunk} )")
 
         await process.stop()
         rendered_document = "".join(rendered_chunks)
