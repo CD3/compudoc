@@ -12,11 +12,16 @@ class Jinja2:
         return textwrap.dedent(
             """
         import jinja2
+        import pathlib
         jinja2_env = jinja2.Environment(keep_trailing_newline=True)
         def fmt_filter(input, spec=""):
           return ("{"+f":{spec}"+"}").format(input)
 
+        def insert_filter(filename):
+          return pathlib.Path(filename).read_text()
+
         jinja2_env.filters['fmt'] = fmt_filter
+        jinja2_env.filters['insert'] = insert_filter
         """
         )
 

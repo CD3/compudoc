@@ -1,23 +1,12 @@
 import asyncio
-import contextlib
-import os
 from pathlib import Path
 
 import pytest
+from .utils import *
 
 from compudoc.document import *
 from compudoc.execution_engines import *
 from compudoc.parsing import *
-
-
-@contextlib.contextmanager
-def workingdir(d):
-    od = os.getcwd()
-    os.chdir(d)
-    try:
-        yield
-    finally:
-        os.chdir(od)
 
 
 @pytest.fixture
@@ -45,7 +34,6 @@ The length is $L = {{'{:Lx}'.format(x)}}$.
 
 
 def test_initializing_engine():
-
     async def run():
         assert True
         assert True
@@ -72,7 +60,6 @@ def test_initializing_engine():
 
 
 def test_document_rendering(simple_document_text):
-
     rendered_text = render_document(simple_document_text)
     assert r"The length is $L = \SI[]{1}{\meter}$." in rendered_text
 
@@ -195,6 +182,19 @@ def test_include_file_filter(tmp_path):
     %
     % jinja2_env.filters['include'] = include_filter
     % }}}
+    This is INCLUDED FROM FILE!
+    """
+        )
+
+        rendered_text = render_document(
+            """\
+    This is {{"include.txt" | insert}}!
+    """
+        )
+
+        assert (
+            rendered_text
+            == """\
     This is INCLUDED FROM FILE!
     """
         )
