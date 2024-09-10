@@ -2,11 +2,12 @@ import asyncio
 from pathlib import Path
 
 import pytest
-from .utils import *
 
 from compudoc.document import *
 from compudoc.execution_engines import *
 from compudoc.parsing import *
+
+from .utils import *
 
 
 @pytest.fixture
