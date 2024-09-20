@@ -72,7 +72,7 @@ def main(
 
     if filetype is None:
         filetype = detect_filetype(input_file)
-    if filetype is None:
+    if filetype is None and comment_line_str is None:
         print(f"Could not determine filetype for {input_file}")
         raise typer.Exit(1)
 
