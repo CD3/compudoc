@@ -1,5 +1,6 @@
 import pathlib
 
+import rich
 import fspathtree
 import jinja2
 import typer
@@ -8,6 +9,7 @@ from typing_extensions import Annotated, List
 from compudoc import document
 
 app = typer.Typer()
+console = rich.console.Console(stderr=True)
 
 
 def detect_filetype(filename):
@@ -62,18 +64,18 @@ def main(
     output_file = pathlib.Path(env.from_string(output_file_template).render(**ctx))
 
     if show_output_filename_render_context:
-        print("Render context variables (and thier current value)")
+        console.print("Render context variables (and thier current value)")
         for k in ctx:
-            print("  ", k, ":", ctx[k])
-        print("Output filename (with current template context) would be")
-        print(output_file_template, "->", output_file)
+            console.print("  ", k, ":", ctx[k])
+        console.print("Output filename (with current template context) would be")
+        console.print(output_file_template, "->", output_file)
 
         raise typer.Exit(0)
 
     if filetype is None:
         filetype = detect_filetype(input_file)
     if filetype is None and comment_line_str is None:
-        print(f"Could not determine filetype for {input_file}")
+        console.print(f"Could not determine filetype for {input_file}")
         raise typer.Exit(1)
 
     if filetype == "markdown":
@@ -81,10 +83,10 @@ def main(
     if comment_line_str is None:
         comment_line_str = comment_line_strs[filetype]
 
-    print(f"Detected filetype: {filetype}")
-    print(f"Comment string: {comment_line_str}")
+    console.print(f"Detected filetype: {filetype}")
+    console.print(f"Comment string: {comment_line_str}")
 
-    print(f"Rendering document {input_file} -> {output_file}")
+    console.print(f"Rendering document {input_file} -> {output_file}")
     input_text = input_file.read_text()
 
     output_text = document.render_document(

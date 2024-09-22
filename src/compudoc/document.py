@@ -20,20 +20,20 @@ def render_document(
         comment_block_parser = parsers.make_commented_code_block_parser(
             comment_line_str
         )
-        separator_bar_text = "=" * 100
+        console = rich.console.Console(stderr=True)
+        console.rule('[bold red]COMPUDOC')
         await process.start()
-        rich.print("RUNNING SETUP CODE")
+        console.print("RUNNING SETUP CODE")
         code = template_engine.get_setup_code()
         for line in code.split("\n"):
-            rich.print(f"[yellow]CODE: {line}[/yellow]")
+            console.print(f"[yellow]CODE: {line}[/yellow]")
         await process.exec(code)
         error = await process.flush_stderr()
         for line in error.split("\n"):
-            rich.print(f"[red]STDERR: {line}[/red]")
+            console.print(f"[red]STDERR: {line}[/red]")
         out = await process.flush_stdout()
         for line in out.split("\n"):
-            rich.print(f"[green]STDOUT: {line}[/green]")
-        rich.print(separator_bar_text)
+            console.print(f"[green]STDOUT: {line}[/green]")
 
         chunks = chunk_document(
             text,
@@ -43,21 +43,21 @@ def render_document(
         rendered_chunks = []
         for i, chunk in enumerate(chunks):
             if is_commented_code_block(chunk, comment_block_parser):
+                console.rule(f'[bold red]CHUNK {i}')
                 code = extract_code(chunk, comment_line_str)
-                rich.print("[green]RUNNING CODE BLOCK[/green]")
+                console.print("[green]RUNNING CODE BLOCK[/green]")
                 for line in code.split("\n"):
-                    rich.print(f"[yellow]CODE: {line}[/yellow]")
+                    console.print(f"[yellow]CODE: {line}[/yellow]")
 
                 await process.exec(code)
 
                 error = await process.flush_stderr()
                 for line in error.split("\n"):
-                    rich.print(f"[red]STDERR: {line}[/red]")
+                    console.print(f"[red]STDERR: {line}[/red]")
                 out = await process.flush_stdout()
                 for line in out.split("\n"):
-                    rich.print(f"[green]STDOUT: {line}[/green]")
+                    console.print(f"[green]STDOUT: {line}[/green]")
 
-                rich.print(separator_bar_text)
 
                 if not strip_comment_blocks:
                     rendered_chunks.append(chunk)
@@ -72,6 +72,7 @@ def render_document(
                 #
                 # use exec to make it a string.
                 exec(f"rendered_chunks.append( {rendered_chunk} )")
+        console.rule('[bold red]END')
 
         await process.stop()
         rendered_document = "".join(rendered_chunks)

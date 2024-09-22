@@ -36,6 +36,8 @@ def test_simple_documents(tmp_path):
         assert pathlib.Path("main-processed.tex").exists()
 
 
+
+
 def test_local_modules(tmp_path):
     """
     We can import and use custom python modules
