@@ -64,7 +64,7 @@ def main(
 
     if input_file is None:
         rich.print("Missing argument INPUT_FILE")
-        rich.print(f"Try: {sys.argv[0]} --help")
+        rich.print(f"Try: {pathlib.Path(sys.argv[0]).name} --help")
 
         raise typer.Exit(1)
 
