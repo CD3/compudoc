@@ -11,3 +11,7 @@ wheels/
 .python-version
 requirements-dev.lock
 requirements.lock
+examples/latex_with_refs/main-rendered.aux
+examples/latex_with_refs/main-rendered.log
+examples/latex_with_refs/main-rendered.pdf
+examples/latex_with_refs/main-rendered.tex

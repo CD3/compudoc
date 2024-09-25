@@ -1,0 +1,10 @@
+build:
+  just preprocess
+  just compile
+
+preprocess:
+  rye run compudoc main.tex
+
+compile:
+  arara main-rendered.tex
+

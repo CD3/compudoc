@@ -1,0 +1,36 @@
+% arara: pdflatex
+
+% start with vim --server latex %
+\documentclass[]{exam}
+
+\usepackage{siunitx}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{fullpage}
+
+\title{Exam I}
+\begin{document}
+\maketitle
+
+% {{{ {}
+% import pint
+% ureg = pint.UnitRegistry()
+% Q_ = ureg.Quantity
+% import random
+% def make_label():
+%   return f"lbl-{random.randint(0,100000)}"
+% }}}
+
+
+\begin{questions}
+    % {{{
+    % lbl = make_label()
+    % }}}
+    \question \label{ {{lbl}} } This is question 1.
+    % {{{
+    % lbl = make_label()
+    % }}}
+    \question \label{ {{lbl}} } This is question 2.
+\end{questions}
+
+\end{document}
