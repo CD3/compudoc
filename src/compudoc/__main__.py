@@ -32,7 +32,7 @@ comment_line_strs = {
 
 @app.command()
 def main(
-    input_file: Annotated[ pathlib.Path, typer.Argument(help="Source file to render.")] = None,
+    input_file: pathlib.Path,
     output_file_template: Annotated[
         str,
         typer.Argument(
@@ -61,12 +61,6 @@ def main(
     if version:
         rich.print(f"version: {__version__}")
         raise typer.Exit(0)
-
-    if input_file is None:
-        rich.print("Missing argument INPUT_FILE")
-        rich.print(f"Try: {pathlib.Path(sys.argv[0]).name} --help")
-
-        raise typer.Exit(1)
 
     ctx = {
         "input_file_stem": input_file.stem,
