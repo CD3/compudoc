@@ -32,7 +32,7 @@ comment_line_strs = {
 
 @app.command()
 def main(
-    input_file: pathlib.Path = None,
+    input_file: Annotated[ pathlib.Path, typer.Argument(help="Source file to render.")] = None,
     output_file_template: Annotated[
         str,
         typer.Argument(
