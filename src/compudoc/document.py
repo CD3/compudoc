@@ -16,12 +16,12 @@ def render_document(
     strip_comment_blocks=False,
 ):
     async def run(text):
-        process = Python()
+        process = execution_engine
         comment_block_parser = parsers.make_commented_code_block_parser(
             comment_line_str
         )
         console = rich.console.Console(stderr=True)
-        console.rule('[bold red]COMPUDOC')
+        console.rule("[bold red]COMPUDOC")
         await process.start()
         console.print("RUNNING SETUP CODE")
         code = template_engine.get_setup_code()
@@ -43,7 +43,7 @@ def render_document(
         rendered_chunks = []
         for i, chunk in enumerate(chunks):
             if is_commented_code_block(chunk, comment_block_parser):
-                console.rule(f'[bold red]CHUNK {i}')
+                console.rule(f"[bold red]CHUNK {i}")
                 code = extract_code(chunk, comment_line_str)
                 console.print("[green]RUNNING CODE BLOCK[/green]")
                 for line in code.split("\n"):
@@ -58,7 +58,6 @@ def render_document(
                 for line in out.split("\n"):
                     console.print(f"[green]STDOUT: {line}[/green]")
 
-
                 if not strip_comment_blocks:
                     rendered_chunks.append(chunk)
 
@@ -72,7 +71,7 @@ def render_document(
                 #
                 # use exec to make it a string.
                 exec(f"rendered_chunks.append( {rendered_chunk} )")
-        console.rule('[bold red]END')
+        console.rule("[bold red]END")
 
         await process.stop()
         rendered_document = "".join(rendered_chunks)

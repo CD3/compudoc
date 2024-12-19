@@ -9,6 +9,8 @@ import typer
 from typing_extensions import Annotated, List
 
 from compudoc import document
+from compudoc.execution_engines import *
+from compudoc.template_engines import *
 
 app = typer.Typer()
 console = rich.console.Console(stderr=True)
@@ -54,6 +56,9 @@ def main(
     comment_line_str: Annotated[
         str, typer.Option(help="Use TEXT to identify comment lines.")
     ] = None,
+    python: Annotated[
+        str, typer.Option(help="Specify interpreter to use for evaluating code blocks.")
+    ] = sys.executable,
 ):
     """
     Compudoc lets you write python code in you documents to perform calculations and insert the results.
@@ -102,6 +107,8 @@ def main(
 
     output_text = document.render_document(
         input_text,
+        template_engine=Jinja2(),
+        execution_engine=Python(python),
         comment_line_str=comment_line_str,
         strip_comment_blocks=strip_comment_blocks,
     )

@@ -78,7 +78,7 @@ pi = 3.14
         )
 
 
-def test_simple_documents(tmp_path):
+def test_gnuplot_scripts(tmp_path):
     with workingdir(tmp_path):
         input_file = pathlib.Path("graph.gnuplot")
         input_file.write_text(
@@ -110,5 +110,60 @@ plot sin({{wavenumber|round(1)}}*x)
 set term dumb
 
 plot sin(2.1*x)
+"""
+        )
+
+
+def test_interpreter(tmp_path):
+    with workingdir(tmp_path):
+        input_file = pathlib.Path("main.tex")
+        input_file.write_text(
+            """
+% {{{
+% import sys
+% interp = sys.executable
+% }}}
+{{interp}}
+"""
+        )
+
+        result = runner.invoke(app, [f"{input_file}", "--python", "/usr/bin/python"])
+        assert result.exit_code == 0
+
+        assert input_file.exists()
+        assert pathlib.Path("main-rendered.tex").exists()
+
+        rendered_text = pathlib.Path("main-rendered.tex").read_text()
+        assert (
+            rendered_text
+            == """
+% {{{
+% import sys
+% interp = sys.executable
+% }}}
+/usr/bin/python
+"""
+        )
+
+        import os
+
+        os.symlink("/usr/bin/python", "./python")
+        result = runner.invoke(app, [f"{input_file}", "--python", "./python"])
+        assert result.exit_code == 0
+
+        assert input_file.exists()
+        assert pathlib.Path("main-rendered.tex").exists()
+
+        rendered_text = pathlib.Path("main-rendered.tex").read_text()
+        assert (
+            rendered_text
+            == """
+% {{{
+% import sys
+% interp = sys.executable
+% }}}
+"""
+            + os.getcwd()
+            + """/python
 """
         )

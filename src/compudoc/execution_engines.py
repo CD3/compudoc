@@ -38,12 +38,13 @@ class Python(ExecutionEngine):
     An engine for executing python code.
     """
 
-    def __init__(self):
+    def __init__(self, executable=None):
         self.process: asyncio.Process = None
+        self.executable = executable if executable is not None else sys.executable
 
     async def start(self):
         self.process: asyncio.Process = await asyncio.create_subprocess_exec(
-            sys.executable,
+            self.executable,
             "-i",
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,

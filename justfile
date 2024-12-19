@@ -1,5 +1,5 @@
-test:
-  rye run pytest -vv -s
+test *opts:
+  rye run pytest -vv -s {{opts}}
 format:
   rye run black .
 
