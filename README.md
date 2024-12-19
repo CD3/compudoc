@@ -1,6 +1,6 @@
 # Compudoc
 
-Add the power of python to your LaTeX, Markdown, and more...
+Add the power of python to your LaTeX, Markdown, and more. Why would you want this? Because it is awsome.
 
 # Features
 
@@ -10,8 +10,10 @@ pyptex, and if I had found pyptex earlier, I may not have written Compudoc.
 
 Features include:
 
-- Like pyptex, compudoc is a preprocessor. All Python code is executed and replaced before LaTeX, Pandoc, mdSlides, etc is ran. You could use it to render Python files if you wanted.
+- Like pyptex, compudoc is a *text preprocessor*. The source file read in and a "rendered" version is written out.
+  That means that Python code is executed and replaced *before* LaTeX, Pandoc, mdSlides, etc is ran.
 - As a preprocessor, compudoc can be used with all your existing tooling. Just run compudoc to produce the source file that would normally go into your pipeline.
+- Since compudoc works on plain text files, you can use it to add the power of Python to *any* tool that processes plain text.
 - Unlike pyptex, compudoc is not specific to LaTeX. Any text file can be rendered. LaTeX, Markdown, ReStructuredText, etc. can be rendered with Compudoc.
 - Jinja2 is used for injecting values from Python into the source document. That means you can use Jinja2 filters to make common formatting task cleaner.
 - Python code is executed in a separate interactive Python instance and incrementally between chunks of document text. That means you can define a variable `x` in
@@ -43,11 +45,10 @@ would be split into 5 chunks. The first chunk is the document text 'Some text\n'
 
 ## Examples
 
-
 Python code is embedded in your document's comments. Code blocks within comment blocks
 are marked with a '{{{' and '}}}' line. Here is a LaTeX example.
 
-
+### LaTeX
 
 ```latex
 % arara: pdflatex
@@ -76,7 +77,7 @@ or irradiance ($E$). Each of these four radiometric quantities are related to ea
 through the exposure area and duration.
 
 % {{{ {}
-% power = Q_(100,'mW')
+% power = Q_(100,'mW')ljG
 % duration = Q_(0.25,'s')
 % energy = (power * duration).to("mJ")
 % }}}
@@ -132,4 +133,35 @@ exposure will be \SI[]{25.0}{\milli\joule}.
 
 \end{document}
 
+```
+
+### LaTeX
+
+[Gnuplot](http://www.gnuplot.info/) is amazing, it really is. But like most programming languages, there is no support for physical units. Variables
+are just numbers. Wouldn't it be nice to enter all of your variables in whatever units are convienient and not have to convert them by "hand"?
+With compudoc, you can.
+
+```gnuplot
+# {{{
+# import pint
+# ureg = pint.UnitRegistry()
+# Q_ = ureg.Quantity()
+# beam_waist_diameter = Q_(50, 'um')
+# beam_waist_divergence = Q_(2,'mrad')
+# }}}
+
+# plot the beam diameter of a laser as a function of propagation range.
+# 
+# the range equation:
+DL(r) = sqrt( D0**2 + (phi*r)**2 )
+
+# note that D0 and r need to be expressed in the _same_ units,
+# and phi needs to be expressed in _radian_.
+D0 = {{beam_waist_diameter.to("cm").magnitude}} # convert to cm and get the numerical value
+phi = {{beam_divergence.to("rad").magnitude}}
+
+set xlabel "range [cm]"
+set xlabel "diameter [cm]"
+
+plot DL(r)
 ```
