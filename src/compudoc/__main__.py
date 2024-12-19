@@ -22,11 +22,14 @@ def detect_filetype(filename):
         return "latex"
     if filepath.suffix == ".md":
         return "markdown"
+    if filepath.suffix == ".gnuplot":
+        return "gnuplot"
 
 
 comment_line_strs = {
     "latex": "%",
     "markdown": "[comment]: #",
+    "gnuplot": "#",
 }
 
 

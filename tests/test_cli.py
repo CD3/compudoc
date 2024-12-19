@@ -36,8 +36,6 @@ def test_simple_documents(tmp_path):
         assert pathlib.Path("main-processed.tex").exists()
 
 
-
-
 def test_local_modules(tmp_path):
     """
     We can import and use custom python modules
@@ -76,5 +74,41 @@ pi = {{custom.myPi | fmt('.2f')}}
 // import custom
 // }}}
 pi = 3.14
+"""
+        )
+
+
+def test_simple_documents(tmp_path):
+    with workingdir(tmp_path):
+        input_file = pathlib.Path("graph.gnuplot")
+        input_file.write_text(
+            """
+# {{{
+# wavelength = 3
+# wavenumber = 2 * 3.1415 / wavelength
+# }}}
+set term dumb
+
+plot sin({{wavenumber|round(1)}}*x)
+"""
+        )
+
+        result = runner.invoke(app, [f"{input_file}"])
+        assert result.exit_code == 0
+
+        assert input_file.exists()
+        assert pathlib.Path("graph-rendered.gnuplot").exists()
+
+        rendered_text = pathlib.Path("graph-rendered.gnuplot").read_text()
+        assert (
+            rendered_text
+            == """
+# {{{
+# wavelength = 3
+# wavenumber = 2 * 3.1415 / wavelength
+# }}}
+set term dumb
+
+plot sin(2.1*x)
 """
         )
