@@ -62,15 +62,24 @@ def render_document(
                     rendered_chunks.append(chunk)
 
             else:
-                rendered_chunk = await process.eval(
-                    template_engine.get_render_code(chunk)
-                )
-                # the rendered text comes back as a string literal. i.e. it is a string of a string
-                #
-                # 'this is some rendered text\nwith a new line in it'
-                #
-                # use exec to make it a string.
-                exec(f"rendered_chunks.append( {rendered_chunk} )")
+                try:
+                    rendered_chunk = await process.eval(
+                        template_engine.get_render_code(chunk)
+                    )
+                    # the rendered text comes back as a string literal. i.e. it is a string of a string
+                    #
+                    # 'this is some rendered text\nwith a new line in it'
+                    #
+                    # use exec to make it a string.
+                    exec(f"rendered_chunks.append( {rendered_chunk} )")
+                except Exception as e:
+                    console.print(
+                        f"[red]ERROR: An exception was thrown while trying to render chunk {i} of the document.[/red]"
+                    )
+                    console.print(f"[red]{e}[/red]")
+                    console.print(f"Document chunk was")
+                    console.print(f"[red]vvvvvvvv\n{chunk}\n^^^^^^^^[red]")
+
         console.rule("[bold red]END")
 
         await process.stop()
