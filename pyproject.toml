@@ -20,7 +20,7 @@ requires-python = ">= 3.8"
 [project.scripts]
 "compudoc" = "compudoc.__main__:app"
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling==1.26.3"]
 build-backend = "hatchling.build"
 
 [tool.rye]
