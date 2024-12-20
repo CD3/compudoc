@@ -57,7 +57,7 @@ def main(
         str, typer.Option(help="Use TEXT to identify comment lines.")
     ] = None,
     python: Annotated[
-        str, typer.Option(help="Specify interpreter to use for evaluating code blocks.")
+        str, typer.Option("--python","-p", help="Specify interpreter to use for evaluating code blocks.")
     ] = sys.executable,
 ):
     """
