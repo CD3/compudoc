@@ -1,4 +1,4 @@
-# Compudoc
+# CompuDoc
 
 Add the power of python to your LaTeX, Markdown, and more. Why would you want this? Because it is awsome.
 
@@ -10,11 +10,11 @@ pyptex, and if I had found pyptex earlier, I may not have written Compudoc.
 
 Features include:
 
-- Like pyptex, compudoc is a *text preprocessor*. The source file read in and a "rendered" version is written out.
+- Like pyptex, CompuDoc is a *text preprocessor*. The source file read in and a "rendered" version is written out.
   That means that Python code is executed and replaced *before* LaTeX, Pandoc, mdSlides, etc is ran.
-- As a preprocessor, compudoc can be used with all your existing tooling. Just run compudoc to produce the source file that would normally go into your pipeline.
-- Since compudoc works on plain text files, you can use it to add the power of Python to *any* tool that processes plain text.
-- Unlike pyptex, compudoc is not specific to LaTeX. Any text file can be rendered. LaTeX, Markdown, ReStructuredText, etc. can be rendered with Compudoc.
+- As a preprocessor, CompuDoc can be used with all your existing tooling. Just run CompuDoc to produce the source file that would normally go into your pipeline.
+- Since CompuDoc works on plain text files, you can use it to add the power of Python to *any* tool that processes plain text.
+- Unlike pyptex, CompuDoc is not specific to LaTeX. Any text file can be rendered. LaTeX, Markdown, ReStructuredText, etc. can be rendered with Compudoc.
 - Jinja2 is used for injecting values from Python into the source document. That means you can use Jinja2 filters to make common formatting task cleaner.
 - Python code is executed in a separate interactive Python instance and incrementally between chunks of document text. That means you can define a variable `x` in
   one block of Python code, use that value in a Jinja2 template in your document, change the value of `x` in a later code block, and use it again in the document.
@@ -26,7 +26,7 @@ Features include:
 
 ## How it works
 
-compudoc processes plain text sources files by breaking the file into "chunks" of document text and python code. For example,
+CompuDoc processes plain text sources files by breaking the file into "chunks" of document text and python code. For example,
 a document with the text
 
 ```
@@ -139,7 +139,7 @@ exposure will be \SI[]{25.0}{\milli\joule}.
 
 [Gnuplot](http://www.gnuplot.info/) is amazing, it really is. But like most programming languages, there is no support for physical units. Variables
 are just numbers. Wouldn't it be nice to enter all of your variables in whatever units are convienient and not have to convert them by "hand"?
-With compudoc, you can.
+With CompuDoc, you can.
 
 ```gnuplot
 # {{{
