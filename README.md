@@ -1,6 +1,6 @@
 # CompuDoc
 
-Add the power of python to your LaTeX, Markdown, and more. Why would you want this? Because it is awsome.
+Add the power of python to your LaTeX, Markdown, and more. Why would you want this? Because it is awesome.
 
 # Features
 
@@ -10,8 +10,9 @@ pyptex, and if I had found pyptex earlier, I may not have written Compudoc.
 
 Features include:
 
-- Like pyptex, CompuDoc is a *text preprocessor*. The source file read in and a "rendered" version is written out.
-  That means that Python code is executed and replaced *before* LaTeX, Pandoc, mdSlides, etc is ran.
+- Like pyptex, CompuDoc is a *text preprocessor*. A source file is read in and a "rendered" version is written out.
+  That means that Python code is executed and replaced *before* LaTeX, Pandoc, mdSlides, etc. is ran, so CompuDoc can be
+  added unintrusively to existing projects.
 - As a preprocessor, CompuDoc can be used with all your existing tooling. Just run CompuDoc to produce the source file that would normally go into your pipeline.
 - Since CompuDoc works on plain text files, you can use it to add the power of Python to *any* tool that processes plain text.
 - Unlike pyptex, CompuDoc is not specific to LaTeX. Any text file can be rendered. LaTeX, Markdown, ReStructuredText, etc. can be rendered with Compudoc.
@@ -19,10 +20,10 @@ Features include:
 - Python code is executed in a separate interactive Python instance and incrementally between chunks of document text. That means you can define a variable `x` in
   one block of Python code, use that value in a Jinja2 template in your document, change the value of `x` in a later code block, and use it again in the document.
   The value inserted into the document will be the value of `x` at the point it is inserted.
-- Python code is embedded in the comments of your source document, so you can still run the unrendered source file through your toolchain.
 - If the source file you are rending does not support comments (there is no standard way to put comments in Markdown), you can define your own comment line
-  identifier and have Compudoc strip them during the render process. This means you can use Compudoc to render any plain text source file without the
+  identifier and have CompuDoc strip them during the render process. This means you can use CompuDoc to render *any* plain text source file without the
   final tool knowing anything about it.
+- Add unit support to your scripts that don't have native support for units.
 
 ## How it works
 
@@ -43,17 +44,44 @@ The current directory is {{ CWD }}.
 ```
 would be split into 5 chunks. The first chunk is the document text 'Some text\n', the second chunk is python code and so on.
 
+Chunks are then processed **in order**. Python code chunks are passed to a separate Python instance. Document text chunks are
+rendered using a jinja2 instance running in the separate Python instance. Because chunks are processed in order, it means that
+the value of a variable in a jinja2 template will be determined by the python code chunks that have been processed *before* it.
+
+```
+x is not defined yet
+% {{{
+% x = 2
+% }}}
+x is {{x}}
+% {{{
+% x = 4
+% }}}
+Now x is {{x}}
+```
+
+This document will render to
+```
+x is not defined yet
+% {{{
+% x = 2
+% }}}
+x is 2
+% {{{
+% x = 4
+% }}}
+Now x is 4
+```
+
+
 ## Examples
 
 Python code is embedded in your document's comments. Code blocks within comment blocks
-are marked with a '{{{' and '}}}' line. Here is a LaTeX example.
+are marked with a '{{{' and '}}}' line. Currently, only single-line-style comments are supported.
 
 ### LaTeX
 
 ```latex
-% arara: pdflatex
-
-% start with vim --server latex %
 \documentclass[]{article}
 
 \usepackage{siunitx}
@@ -62,7 +90,6 @@ are marked with a '{{{' and '}}}' line. Here is a LaTeX example.
 \usepackage{fullpage}
 
 \author{C.D. Clark III}
-\title{On...}
 \begin{document}
 \maketitle
 
@@ -87,7 +114,6 @@ duration of {{duration | fmt("Lx")}}, then the energy delivered during the
 exposure will be {{energy | fmt("Lx")}}.
 
 \end{document}
-
 ```
 Save this to a file named `main.tex` and run
 ```bash
@@ -96,9 +122,6 @@ $ compudoc main.tex
 This will create a file named `main-rendered.tex` with the following content
 
 ```latex
-% arara: pdflatex
-
-% start with vim --server latex %
 \documentclass[]{article}
 
 \usepackage{siunitx}
@@ -107,7 +130,6 @@ This will create a file named `main-rendered.tex` with the following content
 \usepackage{fullpage}
 
 \author{C.D. Clark III}
-\title{On...}
 \begin{document}
 \maketitle
 
@@ -135,7 +157,7 @@ exposure will be \SI[]{25.0}{\milli\joule}.
 
 ```
 
-### LaTeX
+### Gnuplot
 
 [Gnuplot](http://www.gnuplot.info/) is amazing, it really is. But like most programming languages, there is no support for physical units. Variables
 are just numbers. Wouldn't it be nice to enter all of your variables in whatever units are convienient and not have to convert them by "hand"?

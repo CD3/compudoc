@@ -167,3 +167,33 @@ def test_interpreter(tmp_path):
             + """/python
 """
         )
+
+
+def test_output_file_naming(tmp_path):
+    with workingdir(tmp_path):
+        input_file = pathlib.Path("main1.tex")
+        input_file.write_text("TEXT\n")
+
+        result = runner.invoke(app, [f"{input_file}"])
+        assert result.exit_code == 0
+
+        assert input_file.exists()
+        assert pathlib.Path("main1-rendered.tex").exists()
+
+        input_file = pathlib.Path("main2.tex.compudoc")
+        input_file.write_text("TEXT\n")
+
+        result = runner.invoke(app, [f"{input_file}"])
+        assert result.exit_code == 0
+
+        assert input_file.exists()
+        assert pathlib.Path("main2.tex").exists()
+
+        input_file = pathlib.Path("main3.tex.cd")
+        input_file.write_text("TEXT\n")
+
+        result = runner.invoke(app, [f"{input_file}"])
+        assert result.exit_code == 0
+
+        assert input_file.exists()
+        assert pathlib.Path("main3.tex").exists()
