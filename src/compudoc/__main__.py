@@ -2,6 +2,7 @@ import importlib.metadata
 import pathlib
 import sys
 
+import art
 import cyclopts
 import fspathtree
 import jinja2
@@ -78,6 +79,11 @@ def main(
             output_file = pathlib.Path(
                 input_file.stem + "-rendered" + input_file.suffix
             )
+
+    font = "poinson"
+    banner = art.text2art(f"CompuDoc", font=font)
+    console.print(banner)
+    console.print(f"version: {__version__}\n\n")
 
     if filetype is None:
         filetype = detect_filetype(input_file)

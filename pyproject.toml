@@ -11,6 +11,7 @@ dependencies = [
     "pint>=0.24.3",
     "fspathtree>=1.0",
     "cyclopts>=3.1.2",
+    "art>=6.4",
 ]
 readme = "README.md"
 requires-python = ">= 3.9"

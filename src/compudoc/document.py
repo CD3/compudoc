@@ -21,7 +21,7 @@ def render_document(
             comment_line_str
         )
         console = rich.console.Console(stderr=True)
-        console.rule("[bold red]COMPUDOC")
+        console.rule("[bold red]START")
         await process.start()
         console.print("RUNNING SETUP CODE")
         code = template_engine.get_setup_code()
