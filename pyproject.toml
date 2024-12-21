@@ -8,14 +8,12 @@ authors = [
 dependencies = [
     "pyparsing>=3.1.4",
     "jinja2>=3.1.4",
-    "typer>=0.12.5",
-    "pytest>=8.3.2",
-    "black>=24.8.0",
     "pint>=0.24.3",
     "fspathtree>=1.0",
+    "cyclopts>=3.1.2",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.9"
 
 [project.scripts]
 "compudoc" = "compudoc.__main__:app"
@@ -23,9 +21,13 @@ requires-python = ">= 3.8"
 requires = ["hatchling==1.26.3"]
 build-backend = "hatchling.build"
 
-[tool.rye]
+[tool.uv]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "black>=24.10.0",
+    "clirunner>=0.1.0",
+    "pytest>=8.3.4",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true

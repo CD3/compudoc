@@ -1,6 +1,6 @@
 import pathlib
 
-from typer.testing import CliRunner
+from clirunner import CliRunner
 
 from compudoc.__main__ import app
 
@@ -13,7 +13,7 @@ def test_help():
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
 
-    assert "main [OPTIONS] INPUT_FILE [OUTPUT_FILE_TEMPLATE]" in result.stdout
+    assert "compudoc COMMAND [ARGS] [OPTIONS]" in result.stdout
 
 
 def test_simple_documents(tmp_path):
