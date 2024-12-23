@@ -17,7 +17,11 @@ console = rich.console.Console(stderr=True)
 
 __version__ = importlib.metadata.version("compudoc")
 
-app = cyclopts.App(name="compudoc", version=__version__)
+app = cyclopts.App(
+    name="compudoc",
+    usage="Usage: compudoc [OPTIONS} INPUT_FILE [OUTPUT_FILE]",
+    version=__version__,
+)
 
 
 def detect_filetype(filename):
