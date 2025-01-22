@@ -43,6 +43,24 @@ comment_line_strs = {
 }
 
 
+class Examples:
+    def latex():
+        return """
+
+
+        """
+    def markdown():
+        return """
+
+
+        """
+    def gnuplot():
+        return """
+
+
+        """
+
+
 @app.default
 def main(
     input_file: pathlib.Path,
