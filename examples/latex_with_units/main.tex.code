@@ -1,0 +1,8 @@
+# BLOCK 1
+import pint
+ureg = pint.UnitRegistry()
+Q_ = ureg.Quantity
+# BLOCK 3
+power = Q_(100,'mW')
+duration = Q_(0.25,'s')
+energy = (power * duration).to("mJ")

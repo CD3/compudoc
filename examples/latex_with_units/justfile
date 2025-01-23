@@ -3,7 +3,7 @@ build:
   just compile
 
 preprocess:
-  rye run compudoc main.tex
+  uv run compudoc main.tex
 
 compile:
   arara main-rendered.tex

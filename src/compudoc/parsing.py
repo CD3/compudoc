@@ -3,6 +3,21 @@ import textwrap
 from pyparsing import *
 
 
+class CodeBlockParser:
+    def __init__(self, comment_line_str):
+        self.__comment_line_str = comment_line_str
+        self.__parser = parsers.make_commented_code_block_parser(self.__comment_line_str)
+
+    @property
+    def comment_line_str(self):
+        return self.__comment_line_str
+
+    @property
+    def parser(self):
+        return self.__parser
+
+
+
 class parsers:
 
     def make_commented_code_block_parser(

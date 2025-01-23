@@ -13,7 +13,6 @@ from compudoc import document
 from compudoc.execution_engines import *
 from compudoc.template_engines import *
 
-console = rich.console.Console(stderr=True)
 
 __version__ = importlib.metadata.version("compudoc")
 
@@ -53,6 +52,8 @@ def main(
     strip_comment_blocks: bool = False,
     comment_line_str: str = None,
     python: str = sys.executable,
+    extract_code: bool = False,
+    quiet: bool = False
 ):
     """
     Compudoc lets you write python code in you documents to perform calculations and insert the results.
@@ -73,8 +74,14 @@ def main(
         Specify the string that comment lines will begin with.
     python
         Specify interpreter to use for evaluating code blocks.
+    extract-code
+        Extract code into a separate file.
+    quiet
+        Don't print status info while rendering.
     """
 
+    console = rich.console.Console(stderr=True, quiet=quiet)
+    econsole = rich.console.Console(stderr=True, quiet=quiet)
     env = jinja2.Environment()
     if output_file is None:
         if input_file.suffix in [".cd", ".compudoc"]:
@@ -106,12 +113,26 @@ def main(
     console.print(f"Rendering document {input_file} -> {output_file}")
     input_text = input_file.read_text()
 
-    output_text = document.render_document(
-        input_text,
-        template_engine=Jinja2(),
-        execution_engine=Python(python),
-        comment_line_str=comment_line_str,
-        strip_comment_blocks=strip_comment_blocks,
-    )
+    doc = document.Document()
+    doc.set_comment_block_parser(document.CodeBlockParser(comment_line_str=comment_line_str))
+    doc.set_template_engine(Jinja2())
+    doc.set_execution_engine(Python(python))
+    doc.parse(input_text)
+
+    if extract_code:
+        code_file_path = pathlib.Path(str(input_file)+".code")
+        if code_file_path.exists():
+            econsole.print(f"[red]Error: {code_file_path} already exists. Will not overwrite.[/red]")
+            return 2
+        else:
+            with code_file_path.open('w') as f:
+                for i,block in doc.enumerate_code_blocks():
+                    f.write(f"# BLOCK {i}\n")
+                    f.write(document.extract_code(block.text, doc.comment_block_parser.comment_line_str))
+
+
+    output_text = doc.render(strip_comment_blocks=strip_comment_blocks, quiet=quiet)
 
     output_file.write_text(output_text)
+
+
