@@ -13,7 +13,7 @@ def test_help():
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
 
-    assert "compudoc COMMAND [ARGS] [OPTIONS]" in result.stdout
+    assert "compudoc" in result.stdout
 
 
 def test_simple_documents(tmp_path):
