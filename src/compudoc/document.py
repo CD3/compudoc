@@ -8,6 +8,25 @@ from .parsing import *
 from .template_engines import *
 
 
+class CodeBlock:
+    def __init__(self, text: str):
+        self.text: str = text
+
+
+class TextBlock:
+    def __init__(self, text: str):
+        self.text: str = text
+
+
+class Document:
+    """
+    A document is a list of text and code blocks.
+    """
+
+    def __init__(self):
+        self.blocks: list[TextBlock | CodeBlock] = []
+
+
 def render_document(
     text,
     comment_line_str="%",
