@@ -140,3 +140,6 @@ class Python(ExecutionEngine):
                 break
             text += line
         return text
+
+    def get_line_comment_str(self):
+        return "#"

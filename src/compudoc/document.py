@@ -12,6 +12,7 @@ class DocumentBlock:
     """
     A baseclass for code and text blocks.
     """
+
     def __init__(self, text: str):
         self._text: str = text
 
@@ -59,10 +60,20 @@ class Document:
     @property
     def comment_block_parser(self):
         return self.__comment_block_parser
+
     def set_template_engine(self, engine):
         self.__template_engine = engine
+
+    @property
+    def template_engine(self):
+        return self.__template_engine
+
     def set_execution_engine(self, engine):
         self.__execution_engine = engine
+
+    @property
+    def execution_engine(self):
+        return self.__execution_engine
 
     def append(self, block: TextBlock | CodeBlock):
         self.__blocks.append(block)
@@ -119,9 +130,7 @@ class Document:
                 yield item
         return
 
-    def parse(
-        self, text
-    ):
+    def parse(self, text):
         """
         Split text into code and text blocks and add them to the document list.
         """
@@ -129,8 +138,6 @@ class Document:
             raise RuntimeError("No comment block parser given, cannot parse document.")
         else:
             comment_block_parser = self.__comment_block_parser
-
-
 
         chunks = chunk_document(
             text,
@@ -142,10 +149,11 @@ class Document:
             else:
                 self.append(TextBlock(chunk))
 
-    def render(self,
+    def render(
+        self,
         strip_comment_blocks=False,
-               quiet = False,
-               ) -> str:
+        quiet=False,
+    ) -> str:
 
         if self.__template_engine is None:
             raise RuntimeError("No template engine given, cannot render document")
@@ -157,14 +165,12 @@ class Document:
         else:
             execution_engine = self.__execution_engine
 
-
         if self.__comment_block_parser is None:
-            raise RuntimeError("No comment block parser engine given, cannot render document")
+            raise RuntimeError(
+                "No comment block parser engine given, cannot render document"
+            )
         else:
             comment_block_parser = self.__comment_block_parser
-
-
-
 
         async def run():
             process = execution_engine
@@ -187,7 +193,9 @@ class Document:
             for i, block in self.enumerate_blocks():
                 if block.is_code_block():
                     console.rule(f"[bold red]CHUNK {i}")
-                    code = extract_code(block.text, comment_block_parser.comment_line_str)
+                    code = extract_code(
+                        block.text, comment_block_parser.comment_line_str
+                    )
                     console.print("[green]RUNNING CODE BLOCK[/green]")
                     for line in code.split("\n"):
                         console.print(f"[yellow]CODE: {line}[/yellow]")
@@ -235,6 +243,7 @@ class Document:
         return rendered_text
 
         return "".join(rendered_blocks)
+
 
 def render_document(
     text,

@@ -10,37 +10,34 @@ import rich.console
 from typing_extensions import Annotated, List
 
 from compudoc import document
+from compudoc.examples import Examples
 from compudoc.execution_engines import *
 from compudoc.template_engines import *
-from compudoc.examples import Examples
-
 
 __version__ = importlib.metadata.version("compudoc")
 
 app = cyclopts.App(
     name="compudoc",
-    usage="Usage: compudoc [OPTIONS} INPUT_FILE [OUTPUT_FILE]",
     version=__version__,
 )
 
 supported_filetypes = {
-        "latex" : {'file extensions' : [".tex"],
-                   'comment line strings' : ['%']
-                   },
-        "markdown" : {'file extensions' : [".md",".markdown"],
-                      'comment line strings' : ['[comment]: #'],
-                      },
-        "gnuplot" : {'file extensions' : [".gp",".gnuplot"],
-                      'comment line strings' : ['#'],
-                     }
-        }
-
-comment_line_strs = {
-    "latex": "%",
-    "markdown": "[comment]: #",
-    "gnuplot": "#",
+    "latex": {
+        "file extensions": [".tex"],
+        "comment line strings": ["%"],
+        "strip comment blocks": False,
+    },
+    "markdown": {
+        "file extensions": [".md", ".markdown"],
+        "comment line strings": ["[comment]: #"],
+        "strip comment blocks": True,
+    },
+    "gnuplot": {
+        "file extensions": [".gp", ".gnuplot"],
+        "comment line strings": ["#"],
+        "strip comment blocks": False,
+    },
 }
-
 
 
 def detect_filetype(filename):
@@ -49,11 +46,10 @@ def detect_filetype(filename):
         filepath = pathlib.Path(filepath.stem)
 
     for ft in supported_filetypes:
-        if filepath.suffix in supported_filetypes[ft]['file extensions']:
+        if filepath.suffix in supported_filetypes[ft]["file extensions"]:
             return ft
 
     return None
-
 
 
 @app.default
@@ -62,10 +58,9 @@ def main(
     output_file: pathlib.Path = None,
     /,
     filetype: str = None,
-    strip_comment_blocks: bool = False,
+    strip_comment_blocks: bool = None,
     comment_line_str: str = None,
     python: str = sys.executable,
-    extract_code: bool = False,
     quiet: bool = False,
 ):
     """
@@ -82,20 +77,17 @@ def main(
     filetype
         Set input filetype.
     strip_comment_blocks
-        Remove comment blocks from document when rendering.
+        Remove comment blocks from document when rendering. Some filetypes do this by default.
     comment_line_str
         Specify the string that comment lines will begin with.
     python
         Specify interpreter to use for evaluating code blocks.
-    extract-code
-        Extract code into a separate file.
     quiet
         Don't print status info while rendering.
     """
 
     console = rich.console.Console(stderr=True, quiet=quiet)
     econsole = rich.console.Console(stderr=True, quiet=quiet)
-    env = jinja2.Environment()
     if output_file is None:
         if input_file.suffix in [".cd", ".compudoc"]:
             output_file = pathlib.Path(input_file.stem)
@@ -115,34 +107,24 @@ def main(
         console.print(f"Could not determine filetype for {input_file}")
         return 1
 
-    if filetype == "markdown":
-        strip_comment_blocks = True
+    if strip_comment_blocks is None:
+        strip_comment_blocks = supported_filetypes[filetype]["strip comment blocks"]
     if comment_line_str is None:
         comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
 
     console.print(f"Detected filetype: {filetype}")
-    console.print(f"Comment string: {comment_line_str}")
+    console.print(rich.markup.escape(f"Comment string: {comment_line_str}"))
 
     console.print(f"Rendering document {input_file} -> {output_file}")
     input_text = input_file.read_text()
 
     doc = document.Document()
-    doc.set_comment_block_parser(document.CodeBlockParser(comment_line_str=comment_line_str))
+    doc.set_comment_block_parser(
+        document.CodeBlockParser(comment_line_str=comment_line_str)
+    )
     doc.set_template_engine(Jinja2())
     doc.set_execution_engine(Python(python))
     doc.parse(input_text)
-
-    if extract_code:
-        code_file_path = pathlib.Path(str(input_file)+".code")
-        if code_file_path.exists():
-            econsole.print(f"[red]Error: {code_file_path} already exists. Will not overwrite.[/red]")
-            return 2
-        else:
-            with code_file_path.open('w') as f:
-                for i,block in doc.enumerate_code_blocks():
-                    f.write(f"# BLOCK {i}\n")
-                    f.write(document.extract_code(block.text, doc.comment_block_parser.comment_line_str))
-
 
     output_text = doc.render(strip_comment_blocks=strip_comment_blocks, quiet=quiet)
 
@@ -150,7 +132,7 @@ def main(
 
 
 @app.command
-def example(filetype: str = "latex", / ):
+def example(filetype: str = "latex", /):
     """
     Print examples for varous filetypes.
 
@@ -168,14 +150,121 @@ def example(filetype: str = "latex", / ):
     econsole = rich.console.Console(stderr=True)
 
     for ft in supported_filetypes:
-        identifiers = [ft] + list( map(lambda e: e[1:], supported_filetypes[ft]['file extensions'] ))
+        identifiers = [ft] + list(
+            map(lambda e: e[1:], supported_filetypes[ft]["file extensions"])
+        )
         if filetype.lower() in identifiers:
-            fn = getattr(Examples,ft)
-            print(fn() )
+            fn = getattr(Examples, ft)
+            print(fn())
             return 0
 
     econsole.print(f"[red]ERROR: Unrecognized file type '{filetype}'.[/red]")
 
 
-    
+@app.command
+def split(
+    input_file: pathlib.Path,
+    /,
+    filetype: str = None,
+    text_suffix: str = ".text",
+    code_suffix: str = ".code",
+    strip: bool = False,
+    comment_line_str: str = None,
+    quiet: bool = False,
+    overwrite: bool = False,
+):
+    """
+    Split a compudoc into its text and code. This creates two files, one with the document text and one with the document code.
+    This is useful for testing/debuggging code blocks.
 
+    Parameters
+    ----------
+
+    filetype
+        Specify input filetype.
+    text_suffix
+        Suffix to append to input filename for generating output filename for document text.
+    code_suffix
+        Suffix to append to input filename for generating output filename for document code.
+    strip_all
+        Remove _all_ compudoc markdup. By default, only comment code blocks are striped. This will
+        also remove template markup.
+    comment_line_str
+        Specify the string that comment lines will begin with.
+    overwrite
+        Overwrite output files if they exists.
+    quiet
+        Don't print status info while rendering.
+    """
+    console = rich.console.Console(stderr=True, quiet=quiet)
+    econsole = rich.console.Console(stderr=True, quiet=quiet)
+
+    font = "poinson"
+    banner = art.text2art(f"CompuDoc", font=font)
+    console.print(banner)
+    console.print(f"version: {__version__}\n\n")
+
+    if filetype is None:
+        filetype = detect_filetype(input_file)
+    if filetype is None and comment_line_str is None:
+        console.print(f"Could not determine filetype for {input_file}")
+        return 1
+
+    if comment_line_str is None:
+        comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
+
+    text_output = pathlib.Path(str(input_file) + text_suffix)
+    code_output = pathlib.Path(str(input_file) + code_suffix)
+
+    console.print(f"Detected filetype: {filetype}")
+    console.print(rich.markup.escape(f"Comment string: {comment_line_str}"))
+    console.print(
+        f"Splitting '{input_file}' into text: '{text_output}' and code: '{code_output}'."
+    )
+
+    if not overwrite:
+        output_exists = False
+        for file in [text_output, code_output]:
+            if file.exists():
+                econsole.print(
+                    f"[red]Error: {file} already exists. Give --overwrite to overwrite.[/red]"
+                )
+        if output_exists:
+            econsole.print(
+                f"[red]One or more output files exists and --overwrite was not given. Exiting.[/red]"
+            )
+            return 2
+
+    input_text = input_file.read_text()
+    doc = document.Document()
+    doc.set_template_engine(Jinja2())
+    doc.set_execution_engine(Python())
+    doc.set_comment_block_parser(
+        document.CodeBlockParser(comment_line_str=comment_line_str)
+    )
+    doc.parse(input_text)
+
+    with text_output.open("w") as f:
+        for i, block in doc.enumerate_text_blocks():
+            if strip:
+                text = doc.template_engine.strip_text(block.text)
+            else:
+                text = block.text
+            f.write(text)
+
+    with code_output.open("w") as f:
+        f.write(doc.execution_engine.get_line_comment_str())
+        f.write("{{{SETUP\}}}n")
+        f.write(doc.template_engine.get_setup_code())
+        for i, block in doc.enumerate_code_blocks():
+            f.write(doc.execution_engine.get_line_comment_str())
+            f.write("{{{BLOCK ")
+            f.write(f"{i}")
+            f.write("}}}\n")
+            f.write(
+                document.extract_code(
+                    block.text, doc.comment_block_parser.comment_line_str
+                )
+            )
+
+    return 0

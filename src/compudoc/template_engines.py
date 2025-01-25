@@ -1,3 +1,4 @@
+import re
 import textwrap
 
 
@@ -31,3 +32,13 @@ class Jinja2:
         the given text using the execution engine.
         """
         return f"jinja2_env.from_string(r'''{text}''').render(**globals())"
+
+    def strip_text(self, text):
+        """
+        Remove all template markup from text.
+        """
+        text = re.sub("{{.*}}", "TEMPLATE-EXPRESSION", text)
+        text = re.sub("{%.*%}", "TEMPLATE-STATEMENT", text)
+        text = re.sub("{#.*#}", "TEMPLATE-COMMENT", text)
+
+        return text
