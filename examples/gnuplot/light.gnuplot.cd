@@ -1,0 +1,18 @@
+# {{{
+# import pint
+# import math
+# ureg = pint.UnitRegistry()
+# Q_ = ureg.Quantity
+# l = Q_(532,'nm')
+# k = 2*math.pi/l
+# }}}
+
+k = {{k.to("1/nm").magnitude}}
+
+set xrange[0:3*{{l.to('nm').magnitude}}]
+
+set xlabel "wavenumber [1/nm]"
+set ylabel "electric field [N/C]"
+unset key
+
+plot sin(k*x)

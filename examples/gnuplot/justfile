@@ -1,0 +1,5 @@
+compile:
+  uv run compudoc light.gnuplot.cd
+
+plot: compile
+  gnuplot -persist light.gnuplot

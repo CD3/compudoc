@@ -1,0 +1,25 @@
+all: markdown latex gnuplot
+
+clean:
+  rm markdown latex gnuplot -rf
+
+markdown:
+  mkdir markdown
+  cd markdown && uv run compudoc example markdown > doc.md.cd
+  cd markdown && uv run compudoc doc.md.cd
+  cd markdown && pandoc doc.md -o doc.pdf
+
+latex:
+  mkdir latex
+  cd latex && uv run compudoc example latex > doc.tex.cd
+  cd latex && uv run compudoc doc.tex.cd
+  cd latex && pandoc doc.tex -o doc.pdf
+
+
+gnuplot:
+  mkdir gnuplot
+  cd gnuplot && uv run compudoc example gnuplot > fig.gp.cd
+  cd gnuplot && uv run compudoc fig.gp.cd
+  cd gnuplot && gnuplot fig.gp
+
+
