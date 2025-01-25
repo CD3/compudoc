@@ -107,8 +107,11 @@ def main(
         console.print(f"Could not determine filetype for {input_file}")
         return 1
 
-    if strip_comment_blocks is None:
+    if strip_comment_blocks is None and filetype in supported_filetypes:
         strip_comment_blocks = supported_filetypes[filetype]["strip comment blocks"]
+    else:
+        strip_comment_blocks = False
+
     if comment_line_str is None:
         comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
 
@@ -119,9 +122,7 @@ def main(
     input_text = input_file.read_text()
 
     doc = document.Document()
-    doc.set_comment_block_parser(
-        document.CodeBlockParser(comment_line_str=comment_line_str)
-    )
+    doc.set_comment_block(document.CommentCodeBlock(comment_line_str + "{{CODE}}"))
     doc.set_template_engine(Jinja2())
     doc.set_execution_engine(Python(python))
     doc.parse(input_text)
@@ -239,9 +240,7 @@ def split(
     doc = document.Document()
     doc.set_template_engine(Jinja2())
     doc.set_execution_engine(Python())
-    doc.set_comment_block_parser(
-        document.CodeBlockParser(comment_line_str=comment_line_str)
-    )
+    doc.set_comment_block(document.CodeBlock(comment_line_str + "{{CODE}}"))
     doc.parse(input_text)
 
     with text_output.open("w") as f:
@@ -261,10 +260,10 @@ def split(
             f.write("{{{BLOCK ")
             f.write(f"{i}")
             f.write("}}}\n")
-            f.write(
-                document.extract_code(
-                    block.text, doc.comment_block_parser.comment_line_str
-                )
-            )
+            # f.write(
+            #     document.extract_code(
+            #         block.text, doc.comment_block_parser.comment_line_str
+            #     )
+            # )
 
     return 0

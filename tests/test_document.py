@@ -199,3 +199,36 @@ def test_include_file_filter(tmp_path):
     This is INCLUDED FROM FILE!
     """
         )
+
+
+def new_comment_code_block_parser():
+    text = """
+This is some text
+% {{{ {}
+% import pint
+% ureg = pint.UnitRegistry
+% Q_ = ureg.Quantity
+%
+% }}}
+
+This is more text.
+
+% {{{ {}
+% x = Q_(1,'m')
+%
+% }}}
+
+The length is $L = {{'{:Lx}'.format(x)}}$.
+
+"""
+
+    class Document:
+        def __init__():
+            self.__parser = None
+            self.__blocks: list[TextBlock | CodeBlock] = []
+
+        def set_parser(self, p):
+            self.__parser = p
+
+        def parse(text):
+            pass

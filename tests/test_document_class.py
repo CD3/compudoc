@@ -23,7 +23,6 @@ def test_document_building():
     assert len(list(doc.iter_blocks())) == 3
 
 
-
 def test_parsing_1():
     text = """
 Line 1
@@ -42,9 +41,8 @@ Line 4: {{cwd}}
     with pytest.raises(RuntimeError) as e:
         doc.parse(text)
 
-    doc.set_comment_block_parser(CodeBlockParser("%"))
+    doc.set_comment_block(CommentCodeBlock("%{{CODE}}"))
     doc.parse(text)
-
 
     assert len(list(doc.iter_blocks())) == 5
     assert len(list(doc.iter_code_blocks())) == 2
@@ -79,7 +77,9 @@ Line 4: {{cwd}}
     doc.set_execution_engine(Python())
     rendered_text = doc.render()
 
-    assert rendered_text == """
+    assert (
+        rendered_text
+        == """
 Line 1
 Line 2
 % {{{
@@ -91,3 +91,4 @@ Line 3
 % }}}
 Line 4: .
 """
+    )

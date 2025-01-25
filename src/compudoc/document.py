@@ -50,16 +50,16 @@ class Document:
 
     def __init__(self):
         self.__blocks: list[TextBlock | CodeBlock] = []
-        self.__comment_block_parser = None
+        self.__comment_block = None
         self.__template_engine = None
         self.__execution_engine = None
 
-    def set_comment_block_parser(self, parser):
-        self.__comment_block_parser = parser
+    def set_comment_block(self, obj):
+        self.__comment_block = obj
 
     @property
-    def comment_block_parser(self):
-        return self.__comment_block_parser
+    def comment_block(self):
+        return self.__comment_block
 
     def set_template_engine(self, engine):
         self.__template_engine = engine
@@ -134,20 +134,25 @@ class Document:
         """
         Split text into code and text blocks and add them to the document list.
         """
-        if self.__comment_block_parser is None:
-            raise RuntimeError("No comment block parser given, cannot parse document.")
+        if self.__comment_block is None:
+            raise RuntimeError("No comment block given, cannot parse document.")
         else:
-            comment_block_parser = self.__comment_block_parser
+            comment_block = self.__comment_block
+        i = 0
+        for match in self.comment_block.get_comment_code_blocks(text):
+            ibeg = match[1]
+            iend = match[2]
+            # need to add the text chunk before
+            # this code chunk
+            chunk = text[i:ibeg]
+            self.append(TextBlock(chunk))
 
-        chunks = chunk_document(
-            text,
-            comment_block_parser=comment_block_parser.parser,
-        )
-        for chunk in chunks:
-            if is_commented_code_block(chunk, comment_block_parser.parser):
-                self.append(CodeBlock(chunk))
-            else:
-                self.append(TextBlock(chunk))
+            # and this code chunk
+            chunk = text[ibeg:iend]
+            self.append(CodeBlock(chunk))
+            i = iend
+        chunk = text[i:]
+        self.append(TextBlock(chunk))
 
     def render(
         self,
@@ -165,12 +170,12 @@ class Document:
         else:
             execution_engine = self.__execution_engine
 
-        if self.__comment_block_parser is None:
+        if self.__comment_block is None:
             raise RuntimeError(
-                "No comment block parser engine given, cannot render document"
+                "No comment code block type given, cannot render document"
             )
         else:
-            comment_block_parser = self.__comment_block_parser
+            comment_block = self.__comment_block
 
         async def run():
             process = execution_engine
@@ -193,9 +198,7 @@ class Document:
             for i, block in self.enumerate_blocks():
                 if block.is_code_block():
                     console.rule(f"[bold red]CHUNK {i}")
-                    code = extract_code(
-                        block.text, comment_block_parser.comment_line_str
-                    )
+                    code = self.__comment_block.extract_code(block.text)
                     console.print("[green]RUNNING CODE BLOCK[/green]")
                     for line in code.split("\n"):
                         console.print(f"[yellow]CODE: {line}[/yellow]")

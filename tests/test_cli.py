@@ -63,6 +63,8 @@ pi = {{custom.myPi | fmt('.2f')}}
         result = runner.invoke(
             app, [f"{input_file}", f"{output_file}", "--comment-line-str", r"//"]
         )
+        print(">>>>", result.stdout)
+        print(">>>>>", result.stderr)
         assert result.exit_code == 0
         assert output_file.exists()
         rendered_text = output_file.read_text()

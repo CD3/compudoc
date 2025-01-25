@@ -525,3 +525,157 @@ def test_is_commented_code_block():
     % }}}
     """
     )
+
+
+def test_comment_line_parser():
+    import re
+
+    comment_pattern = "# {{CODE}}"
+    comment_regex = r"\s*" + comment_pattern.replace("{{CODE}}", "(?P<CODE>.*)")
+    assert re.match(comment_regex, "# import pint")
+    assert re.match(comment_regex, "# import pint").group("CODE") == "import pint"
+
+    comment_line_parser = (
+        pyparsing.Suppress(pyparsing.LineStart())
+        + pyparsing.Regex(comment_regex)
+        + pyparsing.Suppress(pyparsing.LineEnd())
+    )
+
+    results = comment_line_parser.parse_string("  # import pint")
+    assert results
+    assert results["CODE"] == "import pint"
+
+    comment_block_parser = pyparsing.OneOrMore(comment_line_parser)
+
+    results = comment_line_parser.search_string(
+        "# one \n# import pint\n# ureg = pint.UnitRegistry()  \n"
+    )
+    assert results
+    assert results[0]["CODE"] == "one "
+    assert results[1]["CODE"] == "import pint"
+    assert results[2]["CODE"] == "ureg = pint.UnitRegistry()  "
+
+    comment_line_parser = CommentLine("# {{CODE}}")
+
+    results = comment_line_parser.parser.parse_string("# import pint")
+    assert results
+    assert results["CODE"] == "import pint"
+
+    comment_line_parser = CommentLine("<!---{{CODE}}--->")
+    results = comment_line_parser.parser.parse_string("<!---import math--->")
+    assert results
+    assert results["CODE"] == "import math"
+
+
+def test_comment_block_parser():
+    comment_code_block = CommentCodeBlock("# {{CODE}}")
+
+    assert comment_code_block.block_start_parser.parse_string("# {{{")
+    assert comment_code_block.block_start_parser.parse_string("# {{{")["CODE"] == "{{{"
+    assert comment_code_block.block_end_parser.parse_string("# }}}")
+
+    results = comment_code_block.parser.parse_string(
+        """\
+# {{{
+# import pint
+# }}}
+"""
+    )
+    assert results
+
+    assert results["BLOCK_START"][0] == "# {{{"
+    assert (
+        comment_code_block.block_start_parser.parse_string(results["BLOCK_START"][0])[
+            "CODE"
+        ]
+        == "{{{"
+    )
+    assert results["BLOCK_END"][0] == "# }}}"
+    assert (
+        comment_code_block.block_end_parser.parse_string(results["BLOCK_END"][0])[
+            "CODE"
+        ]
+        == "}}}"
+    )
+
+    assert results["CODE_BLOCK"][0] == "# import pint"
+    assert (
+        comment_code_block.comment_line_parser.parse_string(results["CODE_BLOCK"][0])[
+            "CODE"
+        ]
+        == "import pint"
+    )
+
+
+def test_document_parsing():
+
+    text = """\
+line 1
+line 2
+% {{{
+% import pint
+% ureg = pint.UnitRegistry()
+% Q_ = ureg.Quantity
+% }}}
+line 3
+line 4
+% {{{
+% x = 10
+% def f(a):
+%   return a*2
+% }}}
+line 5\
+"""
+    comment_code_block = CommentCodeBlock("%{{CODE}}")
+    blocks = []
+    i = 0
+    for match in comment_code_block.get_comment_code_blocks(text):
+        ibeg = match[1]
+        iend = match[2]
+        # need to add the text chunk before
+        # this code chunk
+        chunk = text[i:ibeg]
+        blocks.append(chunk)
+
+        # and this code chunk
+        chunk = text[ibeg : iend + 1]
+        blocks.append(chunk)
+        i = iend + 1
+    chunk = text[i:]
+    blocks.append(chunk)
+
+    assert len(blocks) == 5
+    assert not comment_code_block.is_comment_code_block(blocks[0])
+    assert comment_code_block.is_comment_code_block(blocks[1])
+    assert not comment_code_block.is_comment_code_block(blocks[2])
+    assert comment_code_block.is_comment_code_block(blocks[3])
+    assert not comment_code_block.is_comment_code_block(blocks[4])
+
+    assert (
+        comment_code_block.extract_code(blocks[1])
+        == "import pint\nureg = pint.UnitRegistry()\nQ_ = ureg.Quantity\n"
+    )
+    assert (
+        comment_code_block.extract_code(blocks[3])
+        == "x = 10\ndef f(a):\n  return a*2\n"
+    )
+
+
+def test_extracting_code_from_block():
+    comment_code_block = CommentCodeBlock("%{{CODE}}")
+    text = "% {{{\n% import pint\n% ureg = pint.UnitRegistry()\n% Q_ = ureg.Quantity\n% }}}\n"
+    assert comment_code_block.is_comment_code_block(text)
+    text = comment_code_block.extract_code(text)
+    assert text == "import pint\nureg = pint.UnitRegistry()\nQ_ = ureg.Quantity\n"
+
+
+def test_making_comment_code_block():
+    comment_code_block = CommentCodeBlock("%{{CODE}}")
+    text = "import pint\nureg = pint.UnitRegistry()\nQ_ = ureg.Quantity\n"
+    assert not comment_code_block.is_comment_code_block(text)
+    text = comment_code_block.comment_code(text)
+    assert (
+        text
+        == "%{{{\n%import pint\n%ureg = pint.UnitRegistry()\n%Q_ = ureg.Quantity\n%}}}\n"
+    )
+    assert comment_code_block.is_comment_code_block(text)
