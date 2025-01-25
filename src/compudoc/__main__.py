@@ -12,6 +12,7 @@ from typing_extensions import Annotated, List
 from compudoc import document
 from compudoc.execution_engines import *
 from compudoc.template_engines import *
+from compudoc.examples import Examples
 
 
 __version__ = importlib.metadata.version("compudoc")
@@ -22,19 +23,17 @@ app = cyclopts.App(
     version=__version__,
 )
 
-
-def detect_filetype(filename):
-    filepath = pathlib.Path(filename)
-    if filepath.suffix in [".cd", ".compudoc"]:
-        filepath = pathlib.Path(filepath.stem)
-
-    filetypes = {
-        ".tex": "latex",
-        ".md": "markdown",
-        ".gnuplot": "gnuplot",
-    }
-    return filetypes.get(filepath.suffix, None)
-
+supported_filetypes = {
+        "latex" : {'file extensions' : [".tex"],
+                   'comment line strings' : ['%']
+                   },
+        "markdown" : {'file extensions' : [".md",".markdown"],
+                      'comment line strings' : ['[comment]: #'],
+                      },
+        "gnuplot" : {'file extensions' : [".gp",".gnuplot"],
+                      'comment line strings' : ['#'],
+                     }
+        }
 
 comment_line_strs = {
     "latex": "%",
@@ -43,22 +42,18 @@ comment_line_strs = {
 }
 
 
-class Examples:
-    def latex():
-        return """
 
+def detect_filetype(filename):
+    filepath = pathlib.Path(filename)
+    if filepath.suffix in [".cd", ".compudoc"]:
+        filepath = pathlib.Path(filepath.stem)
 
-        """
-    def markdown():
-        return """
+    for ft in supported_filetypes:
+        if filepath.suffix in supported_filetypes[ft]['file extensions']:
+            return ft
 
+    return None
 
-        """
-    def gnuplot():
-        return """
-
-
-        """
 
 
 @app.default
@@ -71,7 +66,7 @@ def main(
     comment_line_str: str = None,
     python: str = sys.executable,
     extract_code: bool = False,
-    quiet: bool = False
+    quiet: bool = False,
 ):
     """
     Compudoc lets you write python code in you documents to perform calculations and insert the results.
@@ -123,7 +118,7 @@ def main(
     if filetype == "markdown":
         strip_comment_blocks = True
     if comment_line_str is None:
-        comment_line_str = comment_line_strs[filetype]
+        comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
 
     console.print(f"Detected filetype: {filetype}")
     console.print(f"Comment string: {comment_line_str}")
@@ -153,4 +148,34 @@ def main(
 
     output_file.write_text(output_text)
 
+
+@app.command
+def example(filetype: str = "latex", / ):
+    """
+    Print examples for varous filetypes.
+
+    Parameters
+    ==========
+
+    filetype
+        The example filtype. Currently supported example filetypes:
+            - latex
+            - markdown
+            - gnuplot
+    """
+
+    console = rich.console.Console()
+    econsole = rich.console.Console(stderr=True)
+
+    for ft in supported_filetypes:
+        identifiers = [ft] + list( map(lambda e: e[1:], supported_filetypes[ft]['file extensions'] ))
+        if filetype.lower() in identifiers:
+            fn = getattr(Examples,ft)
+            print(fn() )
+            return 0
+
+    econsole.print(f"[red]ERROR: Unrecognized file type '{filetype}'.[/red]")
+
+
+    
 
