@@ -1,4 +1,4 @@
-all: markdown latex gnuplot
+all: clean markdown latex gnuplot
 
 clean:
   rm markdown latex gnuplot -rf
