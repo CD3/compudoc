@@ -16,8 +16,8 @@ Features include:
 - As a preprocessor, CompuDoc can be used with all your existing tooling. Just run CompuDoc to produce the source file that would normally go into your pipeline.
 - Since CompuDoc works on plain text files, you can use it to add the power of Python to *any* tool that processes plain text.
 - Unlike pyptex, CompuDoc is not specific to LaTeX. Any text file can be rendered. LaTeX, Markdown, ReStructuredText, etc. can be rendered with Compudoc.
-- Jinja2 is used for injecting values from Python into the source document. That means you can use Jinja2 filters to make common formatting task cleaner.
-- Python code is executed in a separate interactive Python instance and incrementally between chunks of document text. That means you can define a variable `x` in
+- Jinja2 is used for injecting values from Python into the source document. That means you can use Jinja2 filters to make common formatting tasks cleaner.
+- Python code is executed in a separate interactive Python instance _incrementally_ between chunks of document text. That means you can define a variable `x` in
   one block of Python code, use that value in a Jinja2 template in your document, change the value of `x` in a later code block, and use it again in the document.
   The value inserted into the document will be the value of `x` at the point it is inserted.
 - If the source file you are rending does not support comments (there is no standard way to put comments in Markdown), you can define your own comment line
