@@ -1,5 +1,7 @@
 test *opts:
-  uv run pytest -vv -s {{opts}}
+  uv run pytest -vv {{opts}}
+  cd tests/cram && uv run cram *.t
+
 format:
   uv run black .
 

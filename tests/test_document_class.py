@@ -38,9 +38,6 @@ Line 4: {{cwd}}
 """
 
     doc = Document()
-    with pytest.raises(RuntimeError) as e:
-        doc.parse(text)
-
     doc.set_comment_block(CommentCodeBlock("%{{CODE}}"))
     doc.parse(text)
 
@@ -69,13 +66,7 @@ Line 4: {{cwd}}
     assert text_blocks_enumeration[2][0] == 4
     assert text_blocks_enumeration[2][1].text == "Line 4: {{cwd}}\n"
 
-    with pytest.raises(RuntimeError) as e:
-        rendered_text = doc.render()
-    doc.set_template_engine(Jinja2())
-    with pytest.raises(RuntimeError) as e:
-        rendered_text = doc.render()
-    doc.set_execution_engine(Python())
-    rendered_text = doc.render()
+    rendered_text = doc.render(quiet=True)
 
     assert (
         rendered_text
@@ -92,3 +83,22 @@ Line 3
 Line 4: .
 """
     )
+
+
+def test_parsing_comment_blocks_with_leading_space():
+    text = """
+Line 1
+Line 2
+ % {{{
+ % import pathlib
+ % }}}
+Line 3
+"""
+
+    doc = Document()
+    doc.set_comment_block(CommentCodeBlock("%{{CODE}}"))
+    doc.parse(text)
+
+    assert len(list(doc.iter_blocks())) == 3
+    assert len(list(doc.iter_code_blocks())) == 1
+    assert len(list(doc.iter_text_blocks())) == 2

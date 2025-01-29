@@ -14,7 +14,7 @@ from .utils import *
 def simple_document_text():
     text = """
 This is some text
-% {{{ {}
+% {{{
 % import pint
 % ureg = pint.UnitRegistry
 % Q_ = ureg.Quantity
@@ -23,7 +23,7 @@ This is some text
 
 This is more text.
 
-% {{{ {}
+% {{{
 % x = Q_(1,'m')
 %
 % }}}
@@ -61,10 +61,12 @@ def test_initializing_engine():
 
 
 def test_document_rendering(simple_document_text):
-    rendered_text = render_document(simple_document_text)
+    doc = Document()
+    rendered_text = doc.parse_and_render(simple_document_text, quiet=True)
     assert r"The length is $L = \SI[]{1}{\meter}$." in rendered_text
 
-    rendered_text = render_document(
+    doc.clear()
+    rendered_text = doc.parse_and_render(
         """\
 Line 1
 % {{{
@@ -72,7 +74,7 @@ Line 1
 % }}}
 Line 2: x = {{x}}
 """,
-        comment_line_str="%",
+        quiet=True,
     )
 
     assert (
@@ -86,7 +88,8 @@ Line 2: x = 1.2
 """
     )
 
-    rendered_text = render_document(
+    doc.clear()
+    rendered_text = doc.parse_and_render(
         """\
 Line 1
 
@@ -95,7 +98,7 @@ Line 1
 % }}}
 Line 2: x = {{x}}
 """,
-        comment_line_str="%",
+        quiet=True,
     )
 
     assert (
@@ -110,7 +113,8 @@ Line 2: x = 1.2
 """
     )
 
-    rendered_text = render_document(
+    doc = Document("#{{CODE}}")
+    rendered_text = doc.parse_and_render(
         """\
 Line 1
 
@@ -119,7 +123,7 @@ Line 1
 # }}}
 Line 2: x = {{x}}
 """,
-        comment_line_str="#",
+        quiet=True,
     )
 
     assert (
@@ -133,7 +137,8 @@ Line 1
 Line 2: x = 1.2
 """
     )
-    rendered_text = render_document(
+    doc.clear()
+    rendered_text = doc.parse_and_render(
         """\
 Line 1
 
@@ -142,8 +147,8 @@ Line 1
 # }}}
 Line 2: x = {{x}}
 """,
-        comment_line_str="#",
         strip_comment_blocks=True,
+        quiet=True,
     )
 
     assert (
@@ -160,7 +165,9 @@ def test_include_file_filter(tmp_path):
     with workingdir(tmp_path):
         Path("include.txt").write_text(r"""INCLUDED FROM FILE""")
 
-        rendered_text = render_document(
+        doc = Document()
+
+        rendered_text = doc.parse_and_render(
             """\
     % {{{
     % import pathlib
@@ -170,7 +177,8 @@ def test_include_file_filter(tmp_path):
     % jinja2_env.filters['include'] = include_filter
     % }}}
     This is {{"include.txt" | include}}!
-    """
+    """,
+            quiet=True,
         )
 
         assert (
@@ -187,10 +195,12 @@ def test_include_file_filter(tmp_path):
     """
         )
 
-        rendered_text = render_document(
+        doc.clear()
+        rendered_text = doc.parse_and_render(
             """\
     This is {{"include.txt" | insert}}!
-    """
+    """,
+            quiet=True,
         )
 
         assert (
@@ -199,36 +209,3 @@ def test_include_file_filter(tmp_path):
     This is INCLUDED FROM FILE!
     """
         )
-
-
-def new_comment_code_block_parser():
-    text = """
-This is some text
-% {{{ {}
-% import pint
-% ureg = pint.UnitRegistry
-% Q_ = ureg.Quantity
-%
-% }}}
-
-This is more text.
-
-% {{{ {}
-% x = Q_(1,'m')
-%
-% }}}
-
-The length is $L = {{'{:Lx}'.format(x)}}$.
-
-"""
-
-    class Document:
-        def __init__():
-            self.__parser = None
-            self.__blocks: list[TextBlock | CodeBlock] = []
-
-        def set_parser(self, p):
-            self.__parser = p
-
-        def parse(text):
-            pass

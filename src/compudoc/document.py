@@ -48,11 +48,26 @@ class Document:
     A document is a list of text and code blocks.
     """
 
-    def __init__(self):
+    def __init__(
+        self, comment_line_pattern=None, template_engine=None, execution_engine=None
+    ):
         self.__blocks: list[TextBlock | CodeBlock] = []
-        self.__comment_block = None
-        self.__template_engine = None
-        self.__execution_engine = None
+        self.__comment_block = (
+            CommentCodeBlock("%{{CODE}}")
+            if comment_line_pattern is None
+            else CommentCodeBlock(comment_line_pattern)
+        )
+
+        self.__template_engine = (
+            Jinja2() if template_engine is None else template_engine
+        )
+        self.__execution_engine = (
+            Python() if execution_engine is None else execution_engine
+        )
+
+    def clear(self):
+        # remove all previously parsed blocks.
+        self.__blocks: list[TextBlock | CodeBlock] = []
 
     def set_comment_block(self, obj):
         self.__comment_block = obj
@@ -247,86 +262,11 @@ class Document:
 
         return "".join(rendered_blocks)
 
-
-def render_document(
-    text,
-    comment_line_str="%",
-    template_engine=Jinja2(),
-    execution_engine=Python(),
-    strip_comment_blocks=False,
-):
-    async def run(text):
-        process = execution_engine
-        comment_block_parser = parsers.make_commented_code_block_parser(
-            comment_line_str
-        )
-        console = rich.console.Console(stderr=True)
-        console.rule("[bold red]START")
-        await process.start()
-        console.print("RUNNING SETUP CODE")
-        code = template_engine.get_setup_code()
-        for line in code.split("\n"):
-            console.print(f"[yellow]CODE: {line}[/yellow]")
-        await process.exec(code)
-        error = await process.flush_stderr()
-        for line in error.split("\n"):
-            console.print(f"[red]STDERR: {line}[/red]")
-        out = await process.flush_stdout()
-        for line in out.split("\n"):
-            console.print(f"[green]STDOUT: {line}[/green]")
-
-        chunks = chunk_document(
-            text,
-            comment_block_parser=comment_block_parser,
-        )
-
-        rendered_chunks = []
-        for i, chunk in enumerate(chunks):
-            if is_commented_code_block(chunk, comment_block_parser):
-                console.rule(f"[bold red]CHUNK {i}")
-                code = extract_code(chunk, comment_line_str)
-                console.print("[green]RUNNING CODE BLOCK[/green]")
-                for line in code.split("\n"):
-                    console.print(f"[yellow]CODE: {line}[/yellow]")
-
-                await process.exec(code)
-
-                error = await process.flush_stderr()
-                for line in error.split("\n"):
-                    console.print(f"[red]STDERR: {line}[/red]")
-                out = await process.flush_stdout()
-                for line in out.split("\n"):
-                    console.print(f"[green]STDOUT: {line}[/green]")
-
-                if not strip_comment_blocks:
-                    rendered_chunks.append(chunk)
-
-            else:
-                try:
-                    rendered_chunk = await process.eval(
-                        template_engine.get_render_code(chunk)
-                    )
-                    # the rendered text comes back as a string literal. i.e. it is a string of a string
-                    #
-                    # 'this is some rendered text\nwith a new line in it'
-                    #
-                    # use exec to make it a string.
-                    exec(f"rendered_chunks.append( {rendered_chunk} )")
-                except Exception as e:
-                    console.print(
-                        f"[red]ERROR: An exception was thrown while trying to render chunk {i} of the document.[/red]"
-                    )
-                    console.print(f"[red]{e}[/red]")
-                    console.print(f"Document chunk was")
-                    console.print(f"[red]vvvvvvvv\n{chunk}\n^^^^^^^^[red]")
-
-        console.rule("[bold red]END")
-
-        await process.stop()
-        rendered_document = "".join(rendered_chunks)
-
-        return rendered_document
-
-    loop = asyncio.get_event_loop()
-    rendered_text = loop.run_until_complete(run(text))
-    return rendered_text
+    def parse_and_render(
+        self,
+        text,
+        strip_comment_blocks=False,
+        quiet=False,
+    ) -> str:
+        self.parse(text)
+        return self.render(strip_comment_blocks=strip_comment_blocks, quiet=quiet)
