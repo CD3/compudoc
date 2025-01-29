@@ -154,7 +154,7 @@ class Document:
         else:
             comment_block = self.__comment_block
         i = 0
-        for match in self.comment_block.get_comment_code_blocks(text):
+        for match in self.__comment_block.get_comment_code_blocks(text):
             ibeg = match[1]
             iend = match[2]
             # need to add the text chunk before
@@ -174,7 +174,6 @@ class Document:
         strip_comment_blocks=False,
         quiet=False,
     ) -> str:
-
         if self.__template_engine is None:
             raise RuntimeError("No template engine given, cannot render document")
         else:

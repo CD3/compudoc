@@ -59,6 +59,7 @@ def main(
     /,
     filetype: str = None,
     strip_comment_blocks: bool = None,
+    comment_line_pattern: str = None,
     comment_line_str: str = None,
     python: str = sys.executable,
     quiet: bool = False,
@@ -78,8 +79,18 @@ def main(
         Set input filetype.
     strip_comment_blocks
         Remove comment blocks from document when rendering. Some filetypes do this by default.
+    comment_line_pattern
+        Specify the pattern used to identify comment lines and extract code.
+
+        Examples:
+
+        '%{{CODE}}' - match lines starting with a % (LaTeX comments) and take all text until the end of the line as code
+
+        '% {{CODE}}' - match lines starting with a '% '. Lines that do not contain a space after '%' will not match.
+
+        '<!---{{CODE}}--->' - match code in HTML comments
     comment_line_str
-        Specify the string that comment lines will begin with.
+        Specify the string that comment lines will begin with. This just creates a comment line pattern with the given string at the front.
     python
         Specify interpreter to use for evaluating code blocks.
     quiet
@@ -115,14 +126,17 @@ def main(
     if comment_line_str is None:
         comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
 
+    if comment_line_pattern is None:
+        comment_line_pattern = comment_line_str + "{{CODE}}"
+
     console.print(f"Detected filetype: {filetype}")
-    console.print(rich.markup.escape(f"Comment string: {comment_line_str}"))
+    console.print(rich.markup.escape(f"Comment line pattern: {comment_line_pattern}"))
 
     console.print(f"Rendering document {input_file} -> {output_file}")
     input_text = input_file.read_text()
 
     doc = document.Document()
-    doc.set_comment_block(document.CommentCodeBlock(comment_line_str + "{{CODE}}"))
+    doc.set_comment_block(document.CommentCodeBlock(comment_line_pattern))
     doc.set_template_engine(Jinja2())
     doc.set_execution_engine(Python(python))
     doc.parse(input_text)
@@ -170,6 +184,7 @@ def split(
     text_suffix: str = ".text",
     code_suffix: str = ".code",
     strip: bool = False,
+    comment_line_pattern: str = None,
     comment_line_str: str = None,
     quiet: bool = False,
     overwrite: bool = False,
@@ -189,6 +204,8 @@ def split(
         Suffix to append to input filename for generating output filename for document code.
     strip_all
         Remove _all_ compudoc markdup. By default, only comment code blocks are striped. This will
+    comment_line_pattern
+        Specify the pattern used to identify comment lines and extract code.
         also remove template markup.
     comment_line_str
         Specify the string that comment lines will begin with.
@@ -214,11 +231,14 @@ def split(
     if comment_line_str is None:
         comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
 
+    if comment_line_pattern is None:
+        comment_line_pattern = comment_line_str + "{{CODE}}"
+
     text_output = pathlib.Path(str(input_file) + text_suffix)
     code_output = pathlib.Path(str(input_file) + code_suffix)
 
     console.print(f"Detected filetype: {filetype}")
-    console.print(rich.markup.escape(f"Comment string: {comment_line_str}"))
+    console.print(rich.markup.escape(f"Comment pattern: {comment_line_pattern}"))
     console.print(
         f"Splitting '{input_file}' into text: '{text_output}' and code: '{code_output}'."
     )
@@ -237,10 +257,7 @@ def split(
             return 2
 
     input_text = input_file.read_text()
-    doc = document.Document()
-    doc.set_template_engine(Jinja2())
-    doc.set_execution_engine(Python())
-    doc.set_comment_block(document.CodeBlock(comment_line_str + "{{CODE}}"))
+    doc = document.Document(comment_line_pattern=comment_line_pattern)
     doc.parse(input_text)
 
     with text_output.open("w") as f:
@@ -253,17 +270,13 @@ def split(
 
     with code_output.open("w") as f:
         f.write(doc.execution_engine.get_line_comment_str())
-        f.write("{{{SETUP\}}}n")
+        f.write("{{{SETUP}}}\n")
         f.write(doc.template_engine.get_setup_code())
         for i, block in doc.enumerate_code_blocks():
             f.write(doc.execution_engine.get_line_comment_str())
             f.write("{{{BLOCK ")
             f.write(f"{i}")
             f.write("}}}\n")
-            # f.write(
-            #     document.extract_code(
-            #         block.text, doc.comment_block_parser.comment_line_str
-            #     )
-            # )
+            f.write(doc.comment_block.extract_code(block.text))
 
     return 0
