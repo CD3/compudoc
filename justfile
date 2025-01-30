@@ -1,10 +1,10 @@
-cram-tests:
+run-cram-tests:
   cd tests/cram && uv run cram *.t
 
-pytest-tests *opts:
+run-pytest-tests *opts:
   uv run pytest -vv {{opts}}
 
-test: pytest-tests cram-tests
+test: run-pytest-tests run-cram-tests
 
 format:
   uv run black .
