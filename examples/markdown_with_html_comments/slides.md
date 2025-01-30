@@ -1,0 +1,8 @@
+---
+title: Example
+---
+
+# Header 1
+
+
+$x = 10$
