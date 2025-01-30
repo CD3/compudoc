@@ -111,52 +111,68 @@ def test_comment_block_parser():
 
     assert comment_code_block.block_start_parser.parse_string("# {{{")
     assert comment_code_block.block_start_parser.parse_string("    # {{{")
-    assert comment_code_block.block_start_parser.parse_string("# {{{")["CODE"] == "{{{"
+    assert comment_code_block.block_start_parser.parse_string("    # {{{      ")
     assert (
-        comment_code_block.block_start_parser.parse_string("    # {{{")["CODE"] == "{{{"
+        comment_code_block.block_start_parser.parse_string("# {{{")[0]["CODE"] == "{{{"
+    )
+    assert (
+        comment_code_block.block_start_parser.parse_string("    # {{{")[0]["CODE"]
+        == "{{{"
     )
     assert comment_code_block.block_end_parser.parse_string("# }}}")
     assert comment_code_block.block_end_parser.parse_string("    # }}}")
-    assert comment_code_block.block_end_parser.parse_string("# }}}")["CODE"] == "}}}"
+    assert comment_code_block.block_end_parser.parse_string("    # }}}   ")
+    assert comment_code_block.block_end_parser.parse_string("# }}}")[0]["CODE"] == "}}}"
     assert (
-        comment_code_block.block_end_parser.parse_string("    # }}}")["CODE"] == "}}}"
+        comment_code_block.block_end_parser.parse_string("    # }}}")[0]["CODE"]
+        == "}}}"
     )
 
     results = comment_code_block.parser.parse_string(
         """\
  # {{{
  # import pint
+ # ureg = pint.UnitRegistry()
  # }}}
 """
     )
     assert results
 
-    assert results["BLOCK_START"][0] == "# {{{"
-    assert (
-        comment_code_block.block_start_parser.parse_string(results["BLOCK_START"][0])[
-            "CODE"
-        ]
-        == "{{{"
-    )
-    assert results["BLOCK_END"][0] == "# }}}"
-    assert (
-        comment_code_block.block_end_parser.parse_string(results["BLOCK_END"][0])[
-            "CODE"
-        ]
-        == "}}}"
-    )
+    assert "".join(results["BLOCK_START"][0]) == "# {{{"
+    assert results["BLOCK_START"][0]["CODE"] == "{{{"
 
-    assert results["CODE_BLOCK"][0] == "# import pint"
-    assert (
-        comment_code_block.comment_line_parser.parse_string(results["CODE_BLOCK"][0])[
-            "CODE"
-        ]
-        == "import pint"
+    assert "".join(results["BLOCK_END"][0]) == "# }}}"
+    assert results["BLOCK_END"][0]["CODE"] == "}}}"
+
+    print(results.dump())
+    return
+    assert "".join(results["CODE_LINES"]) == "# import pint"
+    assert results["CODE_LINES"][0]["CODE"] == "import pint"
+
+    return
+
+    results = comment_code_block.parser.parse_string(
+        """\
+ # {{{
+ # import pint
+ # ureg = pint.UnitRegistry()
+ # }}}
+"""
     )
+    assert results
+
+    assert "".join(results["BLOCK_START"][0]) == "# {{{"
+    assert results["BLOCK_START"][0]["CODE"] == "{{{"
+
+    assert "".join(results["BLOCK_END"][0]) == "# }}}"
+    assert results["BLOCK_END"][0]["CODE"] == "}}}"
+
+    print(results.dump())
+    assert results["CODE_LINES"] == ["import pint"]
+    assert "".join(results["CODE_LINES"]) == "# import pint"
 
 
 def test_document_parsing():
-
     text = """\
 line 1
 line 2
@@ -246,3 +262,72 @@ def test_making_block_start_and_end_comment_lines():
     assert parser.parser.parse_string("% {{{\n% }}}\n")
     assert parser.parser.parse_string(" % {{{\n % }}}\n")
     assert parser.parser.parse_string("% {{{\n% import pint\n% }}}\n")
+
+
+def test_making_commented_line_parser():
+    comment_line_parser = make_commented_code_line_parser("%{{CODE}}")
+
+    results = comment_line_parser.parse_string("% import pint  ")
+    assert results
+    assert "".join(results["LINE"]) == "% import pint  "
+    assert results["CODE"] == " import pint  "
+
+    results = comment_line_parser.parse_string("  % import pint  ")
+    assert results
+    assert "".join(results["LINE"]) == "% import pint  "
+    assert results["CODE"] == " import pint  "
+
+    results = comment_line_parser.search_string("% x = 1  \n% y = 3")
+    assert len(results) == 2
+
+    comment_line_parser = make_commented_code_line_parser("<!--{{CODE}}-->")
+
+    results = comment_line_parser.parse_string("<!-- import pint -->")
+
+    assert results
+    assert "".join(results["LINE"]) == "<!-- import pint -->"
+    assert results["CODE"] == " import pint "
+
+    start_block_parser = make_commented_marker_line_parser(
+        "%{{CODE}}", marker_text="{{{"
+    )
+
+    results = start_block_parser.parse_string("  % {{{  ")
+    assert results
+    assert "".join(results["LINE"]) == "%{{{"
+    assert results["MARKER"] == "{{{"
+
+    start_block_parser = make_commented_marker_line_parser(
+        "<!--{{CODE}}-->", marker_text="{{{"
+    )
+
+    results = start_block_parser.parse_string("  <!-- {{{ --> ")
+    assert results
+    assert "".join(results["LINE"]) == "<!--{{{-->"
+    assert results["MARKER"] == "{{{"
+
+
+def test_pyparsing_literals():
+    # some tests I wrote while trying to figure out the parsers
+    # work.
+    p = pyparsing.Literal("a") + pyparsing.Literal("b")
+
+    assert p.parse_string("ab")
+    assert p.parse_string("a b")
+
+
+def test_making_comment_block_parser():
+    commented_code_block_parser = make_commented_code_block_parser("%{{CODE}}")
+
+    results = commented_code_block_parser.parse_string(
+        """% {{{
+% import pint
+% ureg = pint.UnitRegistry()
+% Q_ = ureg.Quantity
+%
+% x = Q_(2,'m')
+% }}}
+"""
+    )
+
+    print(results.dump())
