@@ -3,14 +3,14 @@ import textwrap
 from pyparsing import *
 
 
-class CommentLine:
+class CommentLineParseHolder:
     """
     Class for storing a comment line parser based on a template pattern.
     """
 
     def __init__(self, template_pattern):
         self.__template_pattern = template_pattern
-        self.__parser = parsers.make_comment_line_parser(template_pattern)
+        self.__parser = make_comment_line_parser(template_pattern)
 
     @property
     def template_pattern(self):
@@ -21,7 +21,7 @@ class CommentLine:
         return self.__parser
 
 
-class CommentCodeBlock:
+class CodeBlockParseHolder:
     """
     Class for stroring a commented code block based on a comment line template pattern.
     """
@@ -29,15 +29,15 @@ class CommentCodeBlock:
     def __init__(
         self, template_pattern, block_start_marker="{{{", block_end_marker="}}}"
     ):
-        self.__comment_line = CommentLine(template_pattern=template_pattern)
+        self.__comment_line = CommentLineParseHolder(template_pattern=template_pattern)
         self.block_start_marker = block_start_marker
-        self.__block_start_parser = parsers.make_comment_line_parser(
+        self.__block_start_parser = make_comment_line_parser(
             template_pattern.replace(
                 "{{CODE}}", r"\s*(?P<CODE>" + block_start_marker + ")"
             )
         )
         self.block_end_marker = block_end_marker
-        self.__block_end_parser = parsers.make_comment_line_parser(
+        self.__block_end_parser = make_comment_line_parser(
             template_pattern.replace(
                 "{{CODE}}", r"\s*(?P<CODE>" + block_end_marker + ")"
             )
@@ -129,52 +129,14 @@ class CommentCodeBlock:
         return "\n".join(lines) + "\n"
 
 
-class parsers:
 
-    def make_comment_line_parser(pattern):
-        """
-        Create a comment line parser from a template pattern.
-        e.g. "# {{CODE}}"
-        """
-        regex = r"\s*" + pattern.replace("{{CODE}}", "(?P<CODE>.*)")
-        parser = Suppress(LineStart()) + Regex(regex) + Suppress(LineEnd())
+def make_comment_line_parser(pattern):
+    """
+    Create a comment line parser from a template pattern.
+    e.g. "# {{CODE}}"
+    """
+    regex = r"\s*" + pattern.replace("{{CODE}}", "(?P<CODE>.*)")
+    parser = Suppress(LineStart()) + Regex(regex) + Suppress(LineEnd())
 
-        return parser
+    return parser
 
-    def make_commented_code_block_parser(
-        comment_line_str, quote_beg_str="{{{", quite_end_str="}}}"
-    ):
-        """
-        Given a string that identifies a comment to the end of line,
-        return a parser that matches a commented code block.
-
-        i.e., given '%', return a parser that matches
-
-        % {{{
-        %
-        % }}}
-
-
-        """
-        begin_expr = Literal(comment_line_str) + Literal(quote_beg_str)
-        end_expr = Literal(comment_line_str) + Literal(quite_end_str)
-
-        commented_code_block_parser = begin_expr + SkipTo(
-            end_expr,
-            include=True,
-            fail_on=(LineStart() + ~Literal(comment_line_str) + rest_of_line),
-        )
-
-        return commented_code_block_parser
-
-    class code_blocks:
-        settings_block = QuotedString(quote_char="{", end_quote_char="}")
-
-    code_block = (
-        Literal("{{{")
-        + (
-            code_blocks.settings_block.set_results_name("settings") + LineEnd()
-            | LineEnd()
-        )
-        + SkipTo("}}}").leave_whitespace().set_results_name("code")
-    )

@@ -38,7 +38,7 @@ Line 4: {{cwd}}
 """
 
     doc = Document()
-    doc.set_comment_block(CommentCodeBlock("%{{CODE}}"))
+    doc.set_comment_block(CodeBlockParseHolder("%{{CODE}}"))
     doc.parse(text)
 
     assert len(list(doc.iter_blocks())) == 5
@@ -96,7 +96,7 @@ Line 3
 """
 
     doc = Document()
-    doc.set_comment_block(CommentCodeBlock("%{{CODE}}"))
+    doc.set_comment_block(CodeBlockParseHolder("%{{CODE}}"))
     doc.parse(text)
 
     assert len(list(doc.iter_blocks())) == 3

@@ -27,7 +27,7 @@ This is more text.
 
 
 def test_code_extraction(simple_document_text):
-    p = CommentCodeBlock("%{{CODE}}")
+    p = CodeBlockParseHolder("%{{CODE}}")
 
     assert (
         p.extract_code(
@@ -94,20 +94,20 @@ def test_comment_line_parser():
     assert results[1]["CODE"] == "import pint"
     assert results[2]["CODE"] == "ureg = pint.UnitRegistry()  "
 
-    comment_line_parser = CommentLine("# {{CODE}}")
+    comment_line_parser = CommentLineParseHolder("# {{CODE}}")
 
     results = comment_line_parser.parser.parse_string("# import pint")
     assert results
     assert results["CODE"] == "import pint"
 
-    comment_line_parser = CommentLine("<!---{{CODE}}--->")
+    comment_line_parser = CommentLineParseHolder("<!---{{CODE}}--->")
     results = comment_line_parser.parser.parse_string("<!---import math--->")
     assert results
     assert results["CODE"] == "import math"
 
 
 def test_comment_block_parser():
-    comment_code_block = CommentCodeBlock("# {{CODE}}")
+    comment_code_block = CodeBlockParseHolder("# {{CODE}}")
 
     assert comment_code_block.block_start_parser.parse_string("# {{{")
     assert comment_code_block.block_start_parser.parse_string("    # {{{")
@@ -174,7 +174,7 @@ line 4
 % }}}
 line 5\
 """
-    comment_code_block = CommentCodeBlock("%{{CODE}}")
+    comment_code_block = CodeBlockParseHolder("%{{CODE}}")
     blocks = []
     i = 0
     for match in comment_code_block.get_comment_code_blocks(text):
@@ -210,7 +210,7 @@ line 5\
 
 
 def test_extracting_code_from_block():
-    comment_code_block = CommentCodeBlock("%{{CODE}}")
+    comment_code_block = CodeBlockParseHolder("%{{CODE}}")
     text = "% {{{\n% import pint\n% ureg = pint.UnitRegistry()\n% Q_ = ureg.Quantity\n% }}}\n"
     assert comment_code_block.is_comment_code_block(text)
     text = comment_code_block.extract_code(text)
@@ -218,7 +218,7 @@ def test_extracting_code_from_block():
 
 
 def test_making_comment_code_block():
-    comment_code_block = CommentCodeBlock("%{{CODE}}")
+    comment_code_block = CodeBlockParseHolder("%{{CODE}}")
     text = "import pint\nureg = pint.UnitRegistry()\nQ_ = ureg.Quantity\n"
     assert not comment_code_block.is_comment_code_block(text)
     text = comment_code_block.comment_code(text)
@@ -231,7 +231,7 @@ def test_making_comment_code_block():
 
 def test_making_block_start_and_end_comment_lines():
     template_pattern = "% {{CODE}}"
-    parser = parsers.make_comment_line_parser(
+    parser = make_comment_line_parser(
         template_pattern.replace("{{CODE}}", r"\s*(?P<CODE>" + "{{{" + ")")
     )
 
@@ -241,7 +241,7 @@ def test_making_block_start_and_end_comment_lines():
     with pytest.raises(Exception) as e:
         assert not parser.parse_string("%{{{")
 
-    parser = CommentCodeBlock(template_pattern)
+    parser = CodeBlockParseHolder(template_pattern)
 
     assert parser.parser.parse_string("% {{{\n% }}}\n")
     assert parser.parser.parse_string(" % {{{\n % }}}\n")

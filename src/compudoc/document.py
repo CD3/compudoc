@@ -53,9 +53,9 @@ class Document:
     ):
         self.__blocks: list[TextBlock | CodeBlock] = []
         self.__comment_block = (
-            CommentCodeBlock("%{{CODE}}")
+            CodeBlockParseHolder("%{{CODE}}")
             if comment_line_pattern is None
-            else CommentCodeBlock(comment_line_pattern)
+            else CodeBlockParseHolder(comment_line_pattern)
         )
 
         self.__template_engine = (

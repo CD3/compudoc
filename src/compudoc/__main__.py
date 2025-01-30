@@ -136,7 +136,7 @@ def main(
     input_text = input_file.read_text()
 
     doc = document.Document()
-    doc.set_comment_block(document.CommentCodeBlock(comment_line_pattern))
+    doc.set_comment_block(document.CodeBlockParseHolder(comment_line_pattern))
     doc.set_template_engine(Jinja2())
     doc.set_execution_engine(Python(python))
     doc.parse(input_text)
