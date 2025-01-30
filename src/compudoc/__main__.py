@@ -97,8 +97,8 @@ def main(
         Don't print status info while rendering.
     """
 
-    console = rich.console.Console(stderr=True, quiet=quiet)
-    econsole = rich.console.Console(stderr=True, quiet=quiet)
+    console = rich.console.Console(stderr=False, quiet=quiet)
+    econsole = rich.console.Console(stderr=True)
     if output_file is None:
         if input_file.suffix in [".cd", ".compudoc"]:
             output_file = pathlib.Path(input_file.stem)
@@ -261,7 +261,12 @@ def split(
     doc.parse(input_text)
 
     with text_output.open("w") as f:
-        for i, block in doc.enumerate_text_blocks():
+        j = 0
+        for i, block in doc.enumerate_blocks():
+            if block.is_code_block():
+                f.write(f"COMMENTED-CODE-BLOCK-{j}\n")
+                j += 1
+                continue
             if strip:
                 text = doc.template_engine.strip_text(block.text)
             else:
@@ -274,7 +279,7 @@ def split(
         f.write(doc.template_engine.get_setup_code())
         for i, block in doc.enumerate_code_blocks():
             f.write(doc.execution_engine.get_line_comment_str())
-            f.write("{{{BLOCK ")
+            f.write("{{{COMMENTED-CODE-BLOCK-")
             f.write(f"{i}")
             f.write("}}}\n")
             f.write(doc.comment_block.extract_code(block.text))

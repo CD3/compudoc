@@ -20,4 +20,5 @@
   $ cat doc.tex.cd.text
   text 1
   text 2
+  COMMENTED-CODE-BLOCK-0
   msg = {{msg}}

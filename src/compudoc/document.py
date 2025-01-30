@@ -52,7 +52,7 @@ class Document:
         self, comment_line_pattern=None, template_engine=None, execution_engine=None
     ):
         self.__blocks: list[TextBlock | CodeBlock] = []
-        self.__comment_block = (
+        self.__code_block_parse_holder = (
             CodeBlockParseHolder("%{{CODE}}")
             if comment_line_pattern is None
             else CodeBlockParseHolder(comment_line_pattern)
@@ -70,11 +70,11 @@ class Document:
         self.__blocks: list[TextBlock | CodeBlock] = []
 
     def set_comment_block(self, obj):
-        self.__comment_block = obj
+        self.__code_block_parse_holder = obj
 
     @property
     def comment_block(self):
-        return self.__comment_block
+        return self.__code_block_parse_holder
 
     def set_template_engine(self, engine):
         self.__template_engine = engine
@@ -149,12 +149,12 @@ class Document:
         """
         Split text into code and text blocks and add them to the document list.
         """
-        if self.__comment_block is None:
+        if self.__code_block_parse_holder is None:
             raise RuntimeError("No comment block given, cannot parse document.")
         else:
-            comment_block = self.__comment_block
+            comment_block = self.__code_block_parse_holder
         i = 0
-        for match in self.__comment_block.get_comment_code_blocks(text):
+        for match in self.__code_block_parse_holder.get_comment_code_blocks(text):
             ibeg = match[1]
             iend = match[2]
             # need to add the text chunk before
@@ -184,16 +184,17 @@ class Document:
         else:
             execution_engine = self.__execution_engine
 
-        if self.__comment_block is None:
+        if self.__code_block_parse_holder is None:
             raise RuntimeError(
                 "No comment code block type given, cannot render document"
             )
         else:
-            comment_block = self.__comment_block
+            comment_block = self.__code_block_parse_holder
 
         async def run():
             process = execution_engine
-            console = rich.console.Console(stderr=True, quiet=quiet)
+            console = rich.console.Console(stderr=False, quiet=quiet)
+            econsole = rich.console.Console(stderr=True)
             console.rule("[bold red]START")
             await process.start()
             console.print("RUNNING SETUP CODE")
@@ -212,7 +213,7 @@ class Document:
             for i, block in self.enumerate_blocks():
                 if block.is_code_block():
                     console.rule(f"[bold red]CHUNK {i}")
-                    code = self.__comment_block.extract_code(block.text)
+                    code = self.__code_block_parse_holder.extract_code(block.text)
                     console.print("[green]RUNNING CODE BLOCK[/green]")
                     for line in code.split("\n"):
                         console.print(f"[yellow]CODE: {line}[/yellow]")
@@ -241,12 +242,12 @@ class Document:
                         # use exec to make it a string.
                         exec(f"rendered_chunks.append( {rendered_chunk} )")
                     except Exception as e:
-                        console.print(
+                        econsole.print(
                             f"[red]ERROR: An exception was thrown while trying to render chunk {i} of the document.[/red]"
                         )
-                        console.print(f"[red]{e}[/red]")
-                        console.print(f"Document chunk was")
-                        console.print(f"[red]vvvvvvvv\n{block.text}\n^^^^^^^^[red]")
+                        econsole.print(f"[red]{e}[/red]")
+                        econsole.print(f"Document chunk was")
+                        econsole.print(f"[red]vvvvvvvv\n{block.text}\n^^^^^^^^[red]")
 
             console.rule("[bold red]END")
 

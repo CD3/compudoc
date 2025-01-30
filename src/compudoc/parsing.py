@@ -30,24 +30,38 @@ class CodeBlockParseHolder:
         self, template_pattern, block_start_marker="{{{", block_end_marker="}}}"
     ):
         self.__comment_line = CommentLineParseHolder(template_pattern=template_pattern)
-        self.block_start_marker = block_start_marker
-        self.__block_start_parser = make_comment_line_parser(
-            template_pattern.replace(
-                "{{CODE}}", r"\s*(?P<CODE>" + block_start_marker + ")"
+
+        # split the pattern into pre and post tests around {{CODE}}
+        tag = "{{CODE}}"
+        i = template_pattern.find(tag)
+        if i == -1:
+            raise RuntimeError(
+                "Invalid comment line pattern. pattern must contain '{{CODE}}' tag."
             )
+        pre = template_pattern[:i]
+        post = template_pattern[i + len(tag) :]
+        post_parser = Literal(post)
+        post_parser.set_whitespace_chars(" \t")  # don't skip newline as whitepace
+
+        self.block_start_marker = block_start_marker
+        self.__block_start_parser = (
+            Suppress(LineStart())
+            + Group(Literal(pre) + Literal(block_start_marker)("CODE") + post_parser)
+            + Suppress(LineEnd())
         )
         self.block_end_marker = block_end_marker
-        self.__block_end_parser = make_comment_line_parser(
-            template_pattern.replace(
-                "{{CODE}}", r"\s*(?P<CODE>" + block_end_marker + ")"
-            )
+        self.__block_end_parser = (
+            Suppress(LineStart())
+            + Group(Literal(pre) + Literal(block_end_marker)("CODE") + post_parser)
+            + Suppress(LineEnd())
         )
 
         self.__parser = (
             self.__block_start_parser("BLOCK_START")
-            + ZeroOrMore(self.__comment_line.parser, stop_on=self.__block_end_parser)(
-                "CODE_BLOCK"
-            )
+            + ZeroOrMore(
+                self.__comment_line.parser,
+                stop_on=self.__block_end_parser,
+            )("CODE_BLOCK")
             + self.__block_end_parser("BLOCK_END")
         )
 
@@ -129,7 +143,6 @@ class CodeBlockParseHolder:
         return "\n".join(lines) + "\n"
 
 
-
 def make_comment_line_parser(pattern):
     """
     Create a comment line parser from a template pattern.
@@ -140,3 +153,97 @@ def make_comment_line_parser(pattern):
 
     return parser
 
+
+##################################################################
+
+
+def split_comment_line_pattern(template_pattern, code_tag="{{CODE}}"):
+    i = template_pattern.find(code_tag)
+    if i == -1:
+        raise RuntimeError(
+            f"Invalid comment line pattern. pattern must contain '{code_tag}' tag."
+        )
+
+    pre_code_text = template_pattern[:i]
+    post_code_text = template_pattern[i + len(code_tag) :]
+
+    return pre_code_text, post_code_text
+
+
+def make_pre_text_and_post_text_parsers(pre_text, post_text):
+    pre_parser = Literal(pre_text)
+
+    if len(post_text) > 0:
+        post_parser = Literal(post_text)
+        post_parser.set_whitespace_chars(" \t")
+    else:
+        post_parser = Empty()
+
+    return pre_parser, post_parser
+
+
+def make_commented_code_line_parser(template_pattern, code_tag="{{CODE}}"):
+    """
+    Create a comment line parser from a template pattern.
+    e.g. "# {{CODE}}"
+    """
+
+    # split the pattern into pre and post texts around code_tag i.e. {{CODE}}
+    pre_text, post_text = split_comment_line_pattern(template_pattern, code_tag)
+
+    pre_parser, post_parser = make_pre_text_and_post_text_parsers(pre_text, post_text)
+
+    code_parser = SkipTo(post_parser if type(post_parser) != Empty else LineEnd())
+    code_parser.set_whitespace_chars("")
+
+    line_parser = (
+        pre_parser("PRE_CODE") + code_parser("CODE") + post_parser("POST_CODE")
+    )("LINE")
+
+    # parser = Suppress(LineStart()) + line_parser + Suppress(LineEnd())
+    parser = line_parser
+
+    return parser
+
+
+def make_commented_marker_line_parser(
+    template_pattern, marker_text, code_tag="{{CODE}}"
+):
+    # split the pattern into pre and post texts around code_tag i.e. {{CODE}}
+    pre_text, post_text = split_comment_line_pattern(template_pattern, code_tag)
+
+    pre_parser, post_parser = make_pre_text_and_post_text_parsers(pre_text, post_text)
+
+    marker_parser = Literal(marker_text)
+    line_parser = (
+        pre_parser("PRE_MARKER") + marker_parser("MARKER") + post_parser("POST_MARKER")
+    )("LINE")
+
+    # parser = Suppress(LineStart()) + line_parser + Suppress(LineEnd())
+    parser = line_parser
+
+    return parser
+
+
+def make_commented_code_block_parser(
+    template_pattern,
+    begin_marker_text="{{{",
+    end_marker_text="}}}",
+    code_tag="{{CODE}}",
+):
+
+    begin_marker_parser = make_commented_marker_line_parser(
+        template_pattern, begin_marker_text, code_tag
+    )("BEGIN_MARKER")
+    end_marker_parser = make_commented_marker_line_parser(
+        template_pattern, end_marker_text, code_tag
+    )("END_MARKER")
+    code_line_parser = make_commented_code_line_parser(template_pattern, code_tag)
+
+    parser = (
+        begin_marker_parser
+        + ZeroOrMore(code_line_parser, stop_on=end_marker_parser)("CODE_LINES")
+        + end_marker_parser
+    )
+
+    return parser
