@@ -323,11 +323,26 @@ def test_making_comment_block_parser():
         """% {{{
 % import pint
 % ureg = pint.UnitRegistry()
-% Q_ = ureg.Quantity
 %
-% x = Q_(2,'m')
+% def make_q(v,u):
+%   return ureg.Quantity(v,u)
+%
+% x = make_q(2,'m')
 % }}}
 """
     )
 
-    print(results.dump())
+    assert results["CODE_LINES"][0] == "%"
+    assert results["CODE_LINES"][1] == " import pint"
+    assert results["CODE_LINES"][2] == "%"
+    assert results["CODE_LINES"][3] == " ureg = pint.UnitRegistry()"
+    assert results["CODE_LINES"][4] == "%"
+    assert results["CODE_LINES"][5] == ""
+    assert results["CODE_LINES"][6] == "%"
+    assert results["CODE_LINES"][7] == " def make_q(v,u):"
+    assert results["CODE_LINES"][8] == "%"
+    assert results["CODE_LINES"][9] == "   return ureg.Quantity(v,u)"
+    assert results["CODE_LINES"][10] == "%"
+    assert results["CODE_LINES"][11] == ""
+    assert results["CODE_LINES"][12] == "%"
+    assert results["CODE_LINES"][13] == " x = make_q(2,'m')"
