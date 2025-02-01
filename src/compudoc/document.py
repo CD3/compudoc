@@ -151,8 +151,6 @@ class Document:
         """
         if self.__code_block_parse_holder is None:
             raise RuntimeError("No comment block given, cannot parse document.")
-        else:
-            comment_block = self.__code_block_parse_holder
         i = 0
         for match in self.__code_block_parse_holder.get_comment_code_blocks(text):
             ibeg = match[1]
@@ -188,8 +186,6 @@ class Document:
             raise RuntimeError(
                 "No comment code block type given, cannot render document"
             )
-        else:
-            comment_block = self.__code_block_parse_holder
 
         async def run():
             process = execution_engine

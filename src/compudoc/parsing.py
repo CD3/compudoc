@@ -31,28 +31,20 @@ class CodeBlockParseHolder:
     ):
         self.__comment_line = CommentLineParseHolder(template_pattern=template_pattern)
 
-        # split the pattern into pre and post tests around {{CODE}}
-        tag = "{{CODE}}"
-        i = template_pattern.find(tag)
-        if i == -1:
-            raise RuntimeError(
-                "Invalid comment line pattern. pattern must contain '{{CODE}}' tag."
-            )
-        pre = template_pattern[:i]
-        post = template_pattern[i + len(tag) :]
-        post_parser = Literal(post)
-        post_parser.set_whitespace_chars(" \t")  # don't skip newline as whitepace
+        code_tag = "{{CODE}}"
+        pre_text, post_text = split_comment_line_pattern(template_pattern, code_tag)
+        pre_parser, post_parser = make_pre_and_post_text_parsers(pre_text, post_text)
 
         self.block_start_marker = block_start_marker
         self.__block_start_parser = (
             Suppress(LineStart())
-            + Group(Literal(pre) + Literal(block_start_marker)("CODE") + post_parser)
+            + Group(pre_parser + Literal(block_start_marker)("CODE") + post_parser)
             + Suppress(LineEnd())
         )
         self.block_end_marker = block_end_marker
         self.__block_end_parser = (
             Suppress(LineStart())
-            + Group(Literal(pre) + Literal(block_end_marker)("CODE") + post_parser)
+            + Group(pre_parser + Literal(block_end_marker)("CODE") + post_parser)
             + Suppress(LineEnd())
         )
 
@@ -170,14 +162,16 @@ def split_comment_line_pattern(template_pattern, code_tag="{{CODE}}"):
     return pre_code_text, post_code_text
 
 
-def make_pre_text_and_post_text_parsers(pre_text, post_text):
+def make_pre_and_post_text_parsers(pre_text, post_text):
     pre_parser = Literal(pre_text)
+    post_parser = Literal(post_text)
+    post_parser.set_whitespace_chars(" \t")
 
-    if len(post_text) > 0:
-        post_parser = Literal(post_text)
-        post_parser.set_whitespace_chars(" \t")
-    else:
-        post_parser = Empty()
+    # if len(post_text) > -0:
+    #     post_parser = Literal(post_text)
+    #     post_parser.set_whitespace_chars(" \t")
+    # else:
+    #     post_parser = Empty()
 
     return pre_parser, post_parser
 
@@ -191,7 +185,7 @@ def make_commented_code_line_parser(template_pattern, code_tag="{{CODE}}"):
     # split the pattern into pre and post texts around code_tag i.e. {{CODE}}
     pre_text, post_text = split_comment_line_pattern(template_pattern, code_tag)
 
-    pre_parser, post_parser = make_pre_text_and_post_text_parsers(pre_text, post_text)
+    pre_parser, post_parser = make_pre_and_post_text_parsers(pre_text, post_text)
 
     code_parser = SkipTo(post_parser if type(post_parser) != Empty else LineEnd())
     code_parser.set_whitespace_chars("")
@@ -212,7 +206,7 @@ def make_commented_marker_line_parser(
     # split the pattern into pre and post texts around code_tag i.e. {{CODE}}
     pre_text, post_text = split_comment_line_pattern(template_pattern, code_tag)
 
-    pre_parser, post_parser = make_pre_text_and_post_text_parsers(pre_text, post_text)
+    pre_parser, post_parser = make_pre_and_post_text_parsers(pre_text, post_text)
 
     marker_parser = Literal(marker_text)
     line_parser = (
