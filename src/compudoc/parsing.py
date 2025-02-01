@@ -1,4 +1,5 @@
 import textwrap
+from pathlib import Path
 
 from pyparsing import *
 
@@ -133,6 +134,30 @@ class CodeBlockParseHolder:
         )
 
         return "\n".join(lines) + "\n"
+
+
+def parse_code_split_file(filepath: Path):
+    block_map = {}
+    block_identifier_line_parser = Literal("#") + Combine(
+        Literal("COMMENTED-CODE-BLOCK-") + Word(nums)
+    )("ID")
+    current_id = "PREAMBLE"
+    with filepath.open() as f:
+        for line in f:
+            line = line.rstrip("\n")
+            try:
+                r = block_identifier_line_parser.parse_string(line)
+                current_id = r["ID"]
+                continue
+            except:
+                pass
+
+            if current_id not in block_map:
+                block_map[current_id] = []
+
+            block_map[current_id].append(line)
+    block_map = {k: "\n".join(block_map[k]) for k in block_map }
+    return block_map
 
 
 def make_comment_line_parser(pattern):

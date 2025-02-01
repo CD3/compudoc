@@ -5,13 +5,13 @@ import sys
 import art
 import cyclopts
 import fspathtree
-import jinja2
 import rich.console
 from typing_extensions import Annotated, List
 
 from compudoc import document
 from compudoc.examples import Examples
 from compudoc.execution_engines import *
+from compudoc.parsing import parse_code_split_file
 from compudoc.template_engines import *
 
 __version__ = importlib.metadata.version("compudoc")
@@ -42,6 +42,9 @@ supported_filetypes = {
 
 def detect_filetype(filename):
     filepath = pathlib.Path(filename)
+    if filepath.suffix in [".mgd", ".merged"]:
+        filepath = pathlib.Path(filepath.stem)
+
     if filepath.suffix in [".cd", ".compudoc"]:
         filepath = pathlib.Path(filepath.stem)
 
@@ -100,11 +103,15 @@ def main(
     console = rich.console.Console(stderr=False, quiet=quiet)
     econsole = rich.console.Console(stderr=True)
     if output_file is None:
-        if input_file.suffix in [".cd", ".compudoc"]:
-            output_file = pathlib.Path(input_file.stem)
+        base = input_file
+        if base.suffix in [".mgd", ".merged"]:
+            base = pathlib.Path(base.stem)
+
+        if base.suffix in [".cd", ".compudoc"]:
+            output_file = pathlib.Path(base.stem)
         else:
             output_file = pathlib.Path(
-                input_file.stem + "-rendered" + input_file.suffix
+                input_file.stem + "-rendered" + base.suffix
             )
 
     font = "poinson"
@@ -199,10 +206,10 @@ def split(
     filetype
         Specify input filetype.
     text_suffix
-        Suffix to append to input filename for generating output filename for document text.
+        Suffix to append to input filename for generating output file name containting document text.
     code_suffix
-        Suffix to append to input filename for generating output filename for document code.
-    strip_all
+        Suffix to append to input filename for generating output file name containting document code.
+    strip
         Remove _all_ compudoc markdup. By default, only comment code blocks are striped. This will
     comment_line_pattern
         Specify the pattern used to identify comment lines and extract code.
@@ -275,13 +282,122 @@ def split(
 
     with code_output.open("w") as f:
         f.write(doc.execution_engine.get_line_comment_str())
-        f.write("{{{SETUP}}}\n")
+        f.write("SETUP\n")
         f.write(doc.template_engine.get_setup_code())
         for i, block in doc.enumerate_code_blocks():
             f.write(doc.execution_engine.get_line_comment_str())
-            f.write("{{{COMMENTED-CODE-BLOCK-")
+            f.write("COMMENTED-CODE-BLOCK-")
             f.write(f"{i}")
-            f.write("}}}\n")
+            f.write("\n")
             f.write(doc.comment_block.extract_code(block.text))
+
+    return 0
+
+
+@app.command
+def merge(
+    input_file: pathlib.Path,
+    /,
+    filetype: str = None,
+    text_suffix: str = ".text",
+    code_suffix: str = ".code",
+    merged_suffix: str = ".merged",
+    comment_line_pattern: str = None,
+    comment_line_str: str = None,
+    quiet: bool = False,
+    overwrite: bool = False,
+):
+    """
+    Merge text and code into a compudoc.
+
+    This command works on text and code files that were previously generated with the `split` comment.
+    The INPUT_FILE argument should be the compudoc that was _originally_ split. The INPUT_FIlE will
+    not be overwritten, a new .merged file is created instead.
+    created
+
+    > compudoc split main.tex.cd
+    > ls
+    main.tex.cd
+    main.tex.cd.code
+    main.tex.cd.text
+    > compudoc merge main.tex.cd
+    > ls
+    main.tex.cd
+    main.tex.cd.code
+    main.tex.cd.text
+    main.tex.cd.merged <<<< new merged file
+
+    Parameters
+    ----------
+
+    filetype
+        Specify input filetype.
+    text_suffix
+        Suffix to append to input filename for generating name for file containing document text.
+    code_suffix
+        Suffix to append to input filename for generating name for file containing document code.
+    code_suffix
+        Suffix to append to input filename for generating output filename for merged document.
+    comment_line_pattern
+        Specify the pattern used to identify comment lines and extract code.
+        also remove template markup.
+    comment_line_str
+        Specify the string that comment lines will begin with.
+    overwrite
+        Overwrite output files if they exists.
+    quiet
+        Don't print status info while rendering.
+    """
+    console = rich.console.Console(stderr=True, quiet=quiet)
+    econsole = rich.console.Console(stderr=True, quiet=quiet)
+
+    font = "poinson"
+    banner = art.text2art(f"CompuDoc", font=font)
+    console.print(banner)
+    console.print(f"version: {__version__}\n\n")
+
+    if filetype is None:
+        filetype = detect_filetype(input_file)
+    if filetype is None and comment_line_str is None:
+        console.print(f"Could not determine filetype for {input_file}")
+        return 1
+
+    if comment_line_str is None:
+        comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
+
+    if comment_line_pattern is None:
+        comment_line_pattern = comment_line_str + "{{CODE}}"
+
+    text_file = pathlib.Path(str(input_file) + text_suffix)
+    code_file = pathlib.Path(str(input_file) + code_suffix)
+    merged_file = pathlib.Path(str(input_file) + merged_suffix)
+
+    console.print(f"Detected filetype: {filetype}")
+    console.print(rich.markup.escape(f"Comment pattern: {comment_line_pattern}"))
+    console.print(
+        f"Merging '{text_file}' (text file) and '{code_file}' (code file) into '{merged_file}'."
+    )
+
+    if not overwrite:
+        output_exists = False
+        for file in [merged_file]:
+            if file.exists():
+                econsole.print(
+                    f"[red]Error: {file} already exists. Give --overwrite to overwrite.[/red]"
+                )
+        if output_exists:
+            econsole.print(
+                f"[red]One or more output files exists and --overwrite was not given. Exiting.[/red]"
+            )
+            return 2
+
+    doc = document.Document(comment_line_pattern=comment_line_pattern)
+
+    block_map = parse_code_split_file(code_file)
+    for k in block_map:
+        block_map[k] = doc.comment_block.comment_code(block_map[k])
+    merged_text = document.render_merged_document(text_file.read_text(), block_map )
+
+    merged_file.write_text(merged_text)
 
     return 0
