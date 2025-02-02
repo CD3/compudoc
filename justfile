@@ -14,3 +14,8 @@ render-readme:
 
 lint:
   uv run mypy .
+
+publish:
+  rm dist -rf
+  uv build
+  uv publish
