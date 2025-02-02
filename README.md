@@ -93,7 +93,7 @@ are marked with a '{{{' and '}}}' line. Currently, only single-line-style commen
 \begin{document}
 \maketitle
 
-% {{{ {}
+% {{{
 % import pint
 % ureg = pint.UnitRegistry()
 % Q_ = ureg.Quantity
@@ -103,7 +103,7 @@ Laser exposures are characterized by a power ($\Phi$), energy ($Q$), radiant exp
 or irradiance ($E$). Each of these four radiometric quantities are related to each other
 through the exposure area and duration.
 
-% {{{ {}
+% {{{
 % power = Q_(100,'mW')ljG
 % duration = Q_(0.25,'s')
 % energy = (power * duration).to("mJ")
@@ -133,7 +133,7 @@ This will create a file named `main-rendered.tex` with the following content
 \begin{document}
 \maketitle
 
-% {{{ {}
+% {{{
 % import pint
 % ureg = pint.UnitRegistry()
 % Q_ = ureg.Quantity
@@ -143,7 +143,7 @@ Laser exposures are characterized by a power ($\Phi$), energy ($Q$), radiant exp
 or irradiance ($E$). Each of these four radiometric quantities are related to each other
 through the exposure area and duration.
 
-% {{{ {}
+% {{{
 % power = Q_(100,'mW')
 % duration = Q_(0.25,'s')
 % energy = (power * duration).to("mJ")
