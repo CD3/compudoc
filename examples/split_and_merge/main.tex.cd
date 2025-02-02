@@ -1,0 +1,17 @@
+\documentclass{article}
+\usepackage{siunitx}
+
+% {{{
+% import pint
+% }}}
+\begin{document}
+% {{{
+% x = 10
+% }}}
+
+Let $x = {{x}}$.
+\end{document}
+
+% {{{
+% y = 1
+% }}}

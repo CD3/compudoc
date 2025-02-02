@@ -110,9 +110,7 @@ def main(
         if base.suffix in [".cd", ".compudoc"]:
             output_file = pathlib.Path(base.stem)
         else:
-            output_file = pathlib.Path(
-                input_file.stem + "-rendered" + base.suffix
-            )
+            output_file = pathlib.Path(input_file.stem + "-rendered" + base.suffix)
 
     font = "poinson"
     banner = art.text2art(f"CompuDoc", font=font)
@@ -268,11 +266,9 @@ def split(
     doc.parse(input_text)
 
     with text_output.open("w") as f:
-        j = 0
         for i, block in doc.enumerate_blocks():
             if block.is_code_block():
-                f.write(f"COMMENTED-CODE-BLOCK-{j}\n")
-                j += 1
+                f.write(f"COMMENTED-CODE-BLOCK-{i}\n")
                 continue
             if strip:
                 text = doc.template_engine.strip_text(block.text)
@@ -396,7 +392,7 @@ def merge(
     block_map = parse_code_split_file(code_file)
     for k in block_map:
         block_map[k] = doc.comment_block.comment_code(block_map[k])
-    merged_text = document.render_merged_document(text_file.read_text(), block_map )
+    merged_text = document.render_merged_document(text_file.read_text(), block_map)
 
     merged_file.write_text(merged_text)
 

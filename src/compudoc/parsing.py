@@ -111,7 +111,7 @@ class CodeBlockParseHolder:
 
         return textwrap.dedent("\n".join(lines) + "\n")
 
-    def comment_code(self, text):
+    def comment_code(self, text, prefix=" "):
         """
         Return a comment code block that contains the code.
         """
@@ -119,17 +119,17 @@ class CodeBlockParseHolder:
 
         lines.append(
             self.__comment_line.template_pattern.replace(
-                "{{CODE}}", self.block_start_marker
+                "{{CODE}}", prefix+self.block_start_marker
             )
         )
         if text.endswith("\n"):
             text = text[0:-1]
         for l in text.split("\n"):
-            line = self.__comment_line.template_pattern.replace("{{CODE}}", l)
+            line = self.__comment_line.template_pattern.replace("{{CODE}}", prefix+l)
             lines.append(line)
         lines.append(
             self.__comment_line.template_pattern.replace(
-                "{{CODE}}", self.block_end_marker
+                "{{CODE}}", prefix+self.block_end_marker
             )
         )
 

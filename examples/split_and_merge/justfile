@@ -1,0 +1,19 @@
+list:
+  just --list
+
+do: split merge build-merged
+
+build-orig:
+  uv run compudoc main.tex.cd
+
+build-merged:
+  uv run compudoc main.tex.cd.merged
+
+split:
+  uv run compudoc split main.tex.cd
+
+merge:
+  uv run compudoc merge main.tex.cd
+
+clean:
+  rm main.tex main.tex.cd.*

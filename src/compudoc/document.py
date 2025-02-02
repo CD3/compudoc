@@ -131,10 +131,9 @@ class Document:
         Index is returned in first element, just as with enumerate().
         """
         idx = 0
-        for block in self.__blocks:
-            if block.is_code_block():
-                yield idx,block
-                idx += 1
+        for item in self.enumerate_blocks():
+            if item[1].is_code_block():
+                yield item
         return
 
     def enumerate_text_blocks(self):
@@ -142,10 +141,9 @@ class Document:
         Return an iterator (as generator) of two element tuples containing text blocks and their index in the document.
         Index is returned in first element, just as with enumerate().
         """
-        idx = 0
-        for block in self.__blocks:
-            if block.is_text_block():
-                yield  idx,block
+        for item in self.enumerate_blocks():
+            if item[1].is_text_block():
+                yield item
         return
 
     def parse(self, text):
@@ -270,13 +268,14 @@ class Document:
         self.parse(text)
         return self.render(strip_comment_blocks=strip_comment_blocks, quiet=quiet)
 
+
 def render_merged_document(doc_text, block_map):
     rendered_lines = []
 
     for line in doc_text.split("\n"):
         k = line.strip()
         if k in block_map:
-            rendered_lines.append(block_map[k])
+            rendered_lines.append(block_map[k].rstrip("\n"))
             continue
 
         rendered_lines.append(line)

@@ -34,3 +34,16 @@
   jinja2_env.filters['insert'] = insert_filter
   #COMMENTED-CODE-BLOCK-1
   msg = "HI"
+  $ compudoc merge --quiet doc.tex.cd
+  $ ls | sort
+  doc.tex.cd
+  doc.tex.cd.code
+  doc.tex.cd.merged
+  doc.tex.cd.text
+  $ cat doc.tex.cd.merged
+  text 1
+  text 2
+  % {{{
+  % msg = "HI"
+  % }}}
+  msg = {{msg}}
