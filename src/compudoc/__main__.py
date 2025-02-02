@@ -300,6 +300,7 @@ def merge(
     merged_suffix: str = ".merged",
     comment_line_pattern: str = None,
     comment_line_str: str = None,
+    code_indent: int = 1,
     quiet: bool = False,
     overwrite: bool = False,
 ):
@@ -339,6 +340,8 @@ def merge(
         also remove template markup.
     comment_line_str
         Specify the string that comment lines will begin with.
+    code_indent
+        Number of spaces to indent code blocks.
     overwrite
         Overwrite output files if they exists.
     quiet
@@ -391,7 +394,7 @@ def merge(
 
     block_map = parse_code_split_file(code_file)
     for k in block_map:
-        block_map[k] = doc.comment_block.comment_code(block_map[k])
+        block_map[k] = doc.comment_block.comment_code(block_map[k],prefix=" "*code_indent)
     merged_text = document.render_merged_document(text_file.read_text(), block_map)
 
     merged_file.write_text(merged_text)

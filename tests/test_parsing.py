@@ -237,12 +237,38 @@ def test_making_comment_code_block():
     comment_code_block = CodeBlockParseHolder("%{{CODE}}")
     text = "import pint\nureg = pint.UnitRegistry()\nQ_ = ureg.Quantity\n"
     assert not comment_code_block.is_comment_code_block(text)
-    text = comment_code_block.comment_code(text)
+
+    # by default, code will be indented one space
+    commented_text = comment_code_block.comment_code(text)
     assert (
-        text
+        commented_text
+        == "% {{{\n% import pint\n% ureg = pint.UnitRegistry()\n% Q_ = ureg.Quantity\n% }}}\n"
+    )
+    assert comment_code_block.is_comment_code_block(commented_text)
+
+    # we can not indent the code
+    commented_text = comment_code_block.comment_code(text, prefix="")
+    assert (
+        commented_text
         == "%{{{\n%import pint\n%ureg = pint.UnitRegistry()\n%Q_ = ureg.Quantity\n%}}}\n"
     )
-    assert comment_code_block.is_comment_code_block(text)
+    assert comment_code_block.is_comment_code_block(commented_text)
+    # or indent it more
+    commented_text = comment_code_block.comment_code(text, prefix="   ")
+    assert (
+        commented_text
+        == "%   {{{\n%   import pint\n%   ureg = pint.UnitRegistry()\n%   Q_ = ureg.Quantity\n%   }}}\n"
+    )
+    assert comment_code_block.is_comment_code_block(commented_text)
+
+    # or use a non-space prefix
+    commented_text = comment_code_block.comment_code(text, prefix=">> ")
+    assert (
+        commented_text
+        == "%>> {{{\n%>> import pint\n%>> ureg = pint.UnitRegistry()\n%>> Q_ = ureg.Quantity\n%>> }}}\n"
+    )
+    # but this makes it not a comment block anymore...
+    assert not comment_code_block.is_comment_code_block(commented_text)
 
 
 def test_making_block_start_and_end_comment_lines():

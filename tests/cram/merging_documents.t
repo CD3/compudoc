@@ -47,3 +47,29 @@
   % msg = "HI"
   % }}}
   msg = {{msg}}
+  $ compudoc merge --quiet doc.tex.cd --code-indent 0
+  $ ls | sort
+  doc.tex.cd
+  doc.tex.cd.code
+  doc.tex.cd.merged
+  doc.tex.cd.text
+  $ cat doc.tex.cd.merged
+  text 1
+  text 2
+  %{{{
+  %msg = "HI"
+  %}}}
+  msg = {{msg}}
+  $ compudoc merge --quiet doc.tex.cd --code-indent 2
+  $ ls | sort
+  doc.tex.cd
+  doc.tex.cd.code
+  doc.tex.cd.merged
+  doc.tex.cd.text
+  $ cat doc.tex.cd.merged
+  text 1
+  text 2
+  %  {{{
+  %  msg = "HI"
+  %  }}}
+  msg = {{msg}}
