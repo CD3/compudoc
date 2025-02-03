@@ -42,8 +42,8 @@ through the exposure area and duration.
 % energy = (power * duration).to("mJ")
 % }}}
 
-For example, if a laser outputs a power of \SI[]{100}{\milli\watt} for a
-duration of \SI[]{0.25}{\second}, then the energy delivered during the
-exposure will be \SI[]{25.0}{\milli\joule}, or \SI[]{0.025}{\joule}.
+For example, if a laser outputs a power of {{power | Lx}} for a
+duration of {{duration | Lx}}, then the energy delivered during the
+exposure will be {{energy | Lx}}, or {{energy.to("J")|Lx}}.
 
 \end{document}

@@ -3,8 +3,8 @@ build:
   just compile
 
 preprocess:
-  uv run compudoc main.tex
+  uv run compudoc main.tex.cd
 
 compile:
-  arara main-rendered.tex
+  arara main.tex
 
