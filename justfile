@@ -1,3 +1,9 @@
+list:
+    just --list
+
+build-readme:
+    uv run compudoc README.md.cd --comment-line-pattern="<!--{{{{CODE}}-->"
+
 run-cram-tests:
   cd tests/cram && uv run cram *.t
 

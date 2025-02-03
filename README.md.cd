@@ -2,8 +2,15 @@
 
 Add the power of python to your LaTeX, Markdown, and more. Why would you want this? Because it is awesome.
 
+<!-- {{{ -->
+<!-- import pathlib -->
+<!-- def include_filter(filename): -->
+<!--   return pathlib.Path(filename).read_text() -->
+<!-- -->
+<!-- jinja2_env.filters['include'] = include_filter -->
+<!-- }}} -->
 
-
+{% raw %}
 # Features
 
 Compudoc is a project with similar goals to [pythontex](https://github.com/gpoore/pythontex), [Codebraid](https://codebraid.org/),
@@ -75,37 +82,16 @@ x is 2
 Now x is 4
 ```
 
-
+{% endraw %}
 ## Usage
 
 For basic usage, create a LaTeX, Markdown, or gnuplot file and add the `.cd` extension.
 
 ```bash
-  $ cat << EOF > doc.tex.cd
-  > text 1
-  > text 2
-  > % {{{
-  > % msg = "HI"
-  > % }}}
-  > msg = {{msg}}
-  > EOF
-  $ ls
-  doc.tex.cd
-  $ compudoc doc.tex.cd --quiet
-  $ ls
-  doc.tex
-  doc.tex.cd
-  $ cat doc.tex
-  text 1
-  text 2
-  % {{{
-  % msg = "HI"
-  % }}}
-  msg = HI
-
+{{'./tests/cram/basic_usage.t'|include}}
 ```
 
-
+{% raw %}
 ## More Complex Examples
 
 Python code is embedded in your document's comments. Code blocks within comment blocks
@@ -219,4 +205,4 @@ set xlabel "diameter [cm]"
 
 plot DL(r)
 ```
-
+{% endraw %}
