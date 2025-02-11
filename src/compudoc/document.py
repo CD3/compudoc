@@ -57,7 +57,6 @@ class Document:
             if comment_line_pattern is None
             else CodeBlockParseHolder(comment_line_pattern)
         )
-
         self.__template_engine = (
             Jinja2() if template_engine is None else template_engine
         )

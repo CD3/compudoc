@@ -63,8 +63,8 @@ class CodeBlockParseHolder:
         return self.__parser
 
     @property
-    def comment_line_parser(self):
-        return self.__comment_line.parser
+    def comment_line_holder(self):
+        return self.__comment_line
 
     @property
     def block_start_parser(self):
@@ -119,17 +119,17 @@ class CodeBlockParseHolder:
 
         lines.append(
             self.__comment_line.template_pattern.replace(
-                "{{CODE}}", prefix+self.block_start_marker
+                "{{CODE}}", prefix + self.block_start_marker
             )
         )
         if text.endswith("\n"):
             text = text[0:-1]
         for l in text.split("\n"):
-            line = self.__comment_line.template_pattern.replace("{{CODE}}", prefix+l)
+            line = self.__comment_line.template_pattern.replace("{{CODE}}", prefix + l)
             lines.append(line)
         lines.append(
             self.__comment_line.template_pattern.replace(
-                "{{CODE}}", prefix+self.block_end_marker
+                "{{CODE}}", prefix + self.block_end_marker
             )
         )
 
@@ -156,7 +156,7 @@ def parse_code_split_file(filepath: Path):
                 block_map[current_id] = []
 
             block_map[current_id].append(line)
-    block_map = {k: "\n".join(block_map[k]) for k in block_map }
+    block_map = {k: "\n".join(block_map[k]) for k in block_map}
     return block_map
 
 
@@ -250,7 +250,6 @@ def make_commented_code_block_parser(
     end_marker_text="}}}",
     code_tag="{{CODE}}",
 ):
-
     begin_marker_parser = make_commented_marker_line_parser(
         template_pattern, begin_marker_text, code_tag
     )("BEGIN_MARKER")

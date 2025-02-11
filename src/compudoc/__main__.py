@@ -394,7 +394,9 @@ def merge(
 
     block_map = parse_code_split_file(code_file)
     for k in block_map:
-        block_map[k] = doc.comment_block.comment_code(block_map[k],prefix=" "*code_indent)
+        block_map[k] = doc.comment_block.comment_code(
+            block_map[k], prefix=" " * code_indent
+        )
     merged_text = document.render_merged_document(text_file.read_text(), block_map)
 
     merged_file.write_text(merged_text)
