@@ -255,6 +255,7 @@ def split(
                 econsole.print(
                     f"[red]Error: {file} already exists. Give --overwrite to overwrite.[/red]"
                 )
+                output_exists = True
         if output_exists:
             econsole.print(
                 f"[red]One or more output files exists and --overwrite was not given. Exiting.[/red]"
@@ -384,6 +385,7 @@ def merge(
                 econsole.print(
                     f"[red]Error: {file} already exists. Give --overwrite to overwrite.[/red]"
                 )
+                output_exists = True
         if output_exists:
             econsole.print(
                 f"[red]One or more output files exists and --overwrite was not given. Exiting.[/red]"

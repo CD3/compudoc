@@ -20,16 +20,16 @@
   msg = {{msg}}
   $ cat doc.tex.cd.code
   #SETUP
-  
+   (glob)
   import jinja2
   import pathlib
   jinja2_env = jinja2.Environment(keep_trailing_newline=True)
   def fmt_filter(input, spec=""):
     return ("{"+f":{spec}"+"}").format(input)
-  
+   (glob)
   def insert_filter(filename):
     return pathlib.Path(filename).read_text()
-  
+   (glob)
   jinja2_env.filters['fmt'] = fmt_filter
   jinja2_env.filters['insert'] = insert_filter
   #COMMENTED-CODE-BLOCK-1
@@ -48,6 +48,8 @@
   % }}}
   msg = {{msg}}
   $ compudoc merge --quiet doc.tex.cd --code-indent 0
+  [2]
+  $ compudoc merge --quiet doc.tex.cd --code-indent 0 --overwrite
   $ ls | sort
   doc.tex.cd
   doc.tex.cd.code
@@ -60,7 +62,7 @@
   %msg = "HI"
   %}}}
   msg = {{msg}}
-  $ compudoc merge --quiet doc.tex.cd --code-indent 2
+  $ compudoc merge --quiet doc.tex.cd --code-indent 2 --overwrite
   $ ls | sort
   doc.tex.cd
   doc.tex.cd.code

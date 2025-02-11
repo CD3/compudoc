@@ -34,6 +34,8 @@
   jinja2_env.filters['insert'] = insert_filter
   #COMMENTED-CODE-BLOCK-1
   msg = "HI"
+  $ compudoc split --quiet doc.tex.cd
+  [2]
   $ rm *
   $ cat << EOF > doc.md.cd
   > text 1
