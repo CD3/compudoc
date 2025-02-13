@@ -1,6 +1,6 @@
 [project]
 name = "compudoc"
-version = "0.10.1"
+version = "0.10.2"
 description = "Add python calculations to your LaTeX and Markdown documents."
 authors = [
     { name = "CD Clark III", email = "clifton.clark@gmail.com" }
