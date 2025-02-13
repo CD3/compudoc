@@ -140,13 +140,22 @@ def main(
     console.print(f"Rendering document {input_file} -> {output_file}")
     input_text = input_file.read_text()
 
-    doc = document.Document()
-    doc.set_comment_block(document.CodeBlockParseHolder(comment_line_pattern))
-    doc.set_template_engine(Jinja2())
-    doc.set_execution_engine(Python(python))
-    doc.parse(input_text)
+    doc = document.Document(
+        comment_line_pattern=comment_line_pattern,
+        template_engine=Jinja2(),
+        execution_engine=Python(python),
+    )
+    try:
+        doc.parse(input_text)
+    except RuntimeError as e:
+        econsole.print("There was a problem parsing document.")
+        return 2
 
-    output_text = doc.render(strip_comment_blocks=strip_comment_blocks, quiet=quiet)
+    try:
+        output_text = doc.render(strip_comment_blocks=strip_comment_blocks, quiet=quiet)
+    except RuntimeError as e:
+        econsole.print("There was a problem rendering document.")
+        return 2
 
     output_file.write_text(output_text)
 

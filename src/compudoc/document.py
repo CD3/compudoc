@@ -223,6 +223,11 @@ class Document:
                     for line in out.split("\n"):
                         console.print(f"[green]STDOUT: {line}[/green]")
 
+                    if "Traceback" in error:
+                        raise RuntimeError(
+                            f"There was a problem executing code block {i}."
+                        )
+
                     if not strip_comment_blocks:
                         rendered_chunks.append(block.text)
 
@@ -244,6 +249,7 @@ class Document:
                         econsole.print(f"[red]{e}[/red]")
                         econsole.print(f"Document chunk was")
                         econsole.print(f"[red]vvvvvvvv\n{block.text}\n^^^^^^^^[red]")
+                        raise e
 
             console.rule("[bold red]END")
 
