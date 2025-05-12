@@ -1,0 +1,28 @@
+% arara: pdflatex
+
+% start with vim --server latex %
+\documentclass[]{article}
+
+\usepackage{siunitx}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{fullpage}
+
+\author{C.D. Clark III}
+\title{On...}
+
+\begin{document}
+\maketitle
+
+% {{{
+% lbl = "a1"
+% }}}
+
+\begin{enumerate}
+  \item \label{ a1 } Question 1.
+\end{enumerate}
+
+This is \ref{ a1 }.
+
+
+\end{document}
