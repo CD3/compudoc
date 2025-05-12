@@ -206,7 +206,17 @@ class Document:
                 console.print(f"[green]STDOUT: {line}[/green]")
 
             rendered_chunks = []
+            block_start_line_number = None
+            block_end_line_number = None
             for i, block in self.enumerate_blocks():
+                block_len = len(block.text[:-1].split("\n"))
+                if block_start_line_number is None:
+                    block_start_line_number = 1
+                    block_end_line_number = block_len
+                else:
+                    block_start_line_number = block_end_line_number + 1
+                    block_end_line_number += block_len
+
                 if block.is_code_block():
                     console.rule(f"[bold red]CHUNK {i}")
                     code = self.__code_block_parse_holder.extract_code(block.text)
@@ -246,9 +256,36 @@ class Document:
                         econsole.print(
                             f"[red]ERROR: An exception was thrown while trying to render chunk {i} of the document.[/red]"
                         )
-                        econsole.print(f"[red]{e}[/red]")
-                        econsole.print(f"Document chunk was")
-                        econsole.print(f"[red]vvvvvvvv\n{block.text}\n^^^^^^^^[red]")
+                        # econsole.print(f"[red]{e}[/red]")
+                        # econsole.print(f"Document chunk was")
+                        # econsole.print(f"[red]vvvvvvvv\n{block.text}\n^^^^^^^^[red]")
+                        # try to find the line causing the problem
+                        lines = block.text.split("\n")
+                        error_lines = []
+                        for i, line in enumerate(lines):
+                            try:
+                                await process.eval(
+                                    template_engine.get_render_code(line)
+                                )
+                            except Exception as ee:
+                                error_lines.append(
+                                    {
+                                        "num": block_start_line_number + i,
+                                        "text": line,
+                                        "error": str(ee),
+                                    }
+                                )
+                        econsole.print("[red]These lines failed to render:[/red]")
+                        for line in error_lines:
+                            econsole.print()
+                            econsole.print("[red]LINE[/red]")
+                            econsole.print(f"{line['num']}: {line['text']}")
+                            econsole.print()
+                            econsole.print("[red]ERROR[/red]")
+                            econsole.print(f"[white]{line['error']}[/white]")
+                            econsole.print()
+                            econsole.print()
+
                         raise e
 
             console.rule("[bold red]END")
