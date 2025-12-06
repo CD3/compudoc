@@ -16,3 +16,4 @@ examples/latex_with_refs/main-rendered.log
 examples/latex_with_refs/main-rendered.pdf
 examples/latex_with_refs/main-rendered.tex
 uv.lock
+.aider*
