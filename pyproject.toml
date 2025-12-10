@@ -4,7 +4,7 @@ requires = [ "hatchling==1.26.3" ]
 
 [project]
 name = "compudoc"
-version = "0.11.0"
+version = "0.11.1"
 description = "Add python calculations to your LaTeX and Markdown documents."
 readme = "README.md"
 authors = [
