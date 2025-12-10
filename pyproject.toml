@@ -1,39 +1,50 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [ "hatchling==1.26.3" ]
+
 [project]
 name = "compudoc"
 version = "0.11.0"
 description = "Add python calculations to your LaTeX and Markdown documents."
+readme = "README.md"
 authors = [
-    { name = "CD Clark III", email = "clifton.clark@gmail.com" }
+  { name = "CD Clark III", email = "clifton.clark@gmail.com" },
+]
+requires-python = ">=3.9"
+
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "pyparsing[diagrams]>=3.1.4",
-    "jinja2>=3.1.4",
-    "pint>=0.24.3",
-    "fspathtree>=1.0",
-    "cyclopts>=3.1.2",
-    "art>=6.4",
+  "art>=6.4",
+  "cyclopts>=3.1.2",
+  "fspathtree>=1",
+  "jinja2>=3.1.4",
+  "pint>=0.24.3",
+  "pyparsing[diagrams]>=3.1.4",
 ]
-readme = "README.md"
-requires-python = ">= 3.9"
+scripts."compudoc" = "compudoc.__main__:app"
 
-[project.scripts]
-"compudoc" = "compudoc.__main__:app"
-[build-system]
-requires = ["hatchling==1.26.3"]
-build-backend = "hatchling.build"
-
-[tool.uv]
-managed = true
-dev-dependencies = [
-    "black>=24.10.0",
-    "clirunner>=0.1.0",
-    "cram>=0.7",
-    "mypy>=1.14.1",
-    "pytest>=8.3.4",
+[dependency-groups]
+dev = [
+  "black>=24.10",
+  "clirunner>=0.1",
+  "cram>=0.7",
+  "mypy>=1.14.1",
+  "pytest>=8.3.4",
 ]
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/compudoc"]
+packages = [ "src/compudoc" ]
+
+[tool.uv]
+managed = true

@@ -21,21 +21,23 @@ app = cyclopts.App(
     version=__version__,
 )
 
-supported_filetypes = {
+
+known_filetypes = {
     "latex": {
         "file extensions": [".tex"],
-        "comment line strings": ["%"],
-        "strip comment blocks": False,
+        "comment line pattern": "%{{CODE}}",
     },
     "markdown": {
         "file extensions": [".md", ".markdown"],
-        "comment line strings": ["[comment]: #"],
-        "strip comment blocks": True,
+        "comment line pattern": "<!--{{CODE}-->",
     },
     "gnuplot": {
         "file extensions": [".gp", ".gnuplot"],
-        "comment line strings": ["#"],
-        "strip comment blocks": False,
+        "comment line pattern": "#{{CODE}}",
+    },
+    "typst": {
+        "file extensions": [".typ"],
+        "comment line pattern": "//{{CODE}}",
     },
 }
 
@@ -48,8 +50,8 @@ def detect_filetype(filename):
     if filepath.suffix in [".cd", ".compudoc"]:
         filepath = pathlib.Path(filepath.stem)
 
-    for ft in supported_filetypes:
-        if filepath.suffix in supported_filetypes[ft]["file extensions"]:
+    for ft in known_filetypes:
+        if filepath.suffix in known_filetypes[ft]["file extensions"]:
             return ft
 
     return None
@@ -61,7 +63,7 @@ def main(
     output_file: pathlib.Path = None,
     /,
     filetype: str = None,
-    strip_comment_blocks: bool = None,
+    strip_comment_blocks: bool = False,
     comment_line_pattern: str = None,
     comment_line_str: str = None,
     python: str = sys.executable,
@@ -81,7 +83,7 @@ def main(
     filetype
         Set input filetype.
     strip_comment_blocks
-        Remove comment blocks from document when rendering. Some filetypes do this by default.
+        Remove comment blocks from document when rendering.
     comment_line_pattern
         Specify the pattern used to identify comment lines and extract code.
 
@@ -119,20 +121,22 @@ def main(
 
     if filetype is None:
         filetype = detect_filetype(input_file)
-    if filetype is None and comment_line_str is None:
-        console.print(f"Could not determine filetype for {input_file}")
-        return 1
 
-    if strip_comment_blocks is None and filetype in supported_filetypes:
-        strip_comment_blocks = supported_filetypes[filetype]["strip comment blocks"]
+    # we need a comment line pattern.
+    # if it is given, great...
+    if comment_line_pattern is not None:
+        pass
     else:
-        strip_comment_blocks = False
-
-    if comment_line_str is None:
-        comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
-
-    if comment_line_pattern is None:
-        comment_line_pattern = comment_line_str + "{{CODE}}"
+        # if its not given, but the comment line string is given, great...
+        if comment_line_str is not None:
+            comment_line_pattern = comment_line_str + "{{CODE}}"
+        else:
+            # if it is not, we need to look it up.
+            if filetype is not None:
+                comment_line_pattern = known_filetypes[filetype]["comment line pattern"]
+            else:
+                console.print(f"Could not determine filetype for {input_file}")
+                return 1
 
     console.print(f"Detected filetype: {filetype}")
     console.print(rich.markup.escape(f"Comment line pattern: {comment_line_pattern}"))
