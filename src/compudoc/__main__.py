@@ -135,7 +135,7 @@ def main(
             if filetype is not None:
                 comment_line_pattern = known_filetypes[filetype]["comment line pattern"]
             else:
-                console.print(f"Could not determine filetype for {input_file}")
+                econsole.print(f"Could not determine filetype for {input_file}")
                 return 1
 
     console.print(f"Detected filetype: {filetype}")
@@ -177,18 +177,20 @@ def example(filetype: str = "latex", /):
             - latex
             - markdown
             - gnuplot
+            - typst
     """
 
     console = rich.console.Console()
     econsole = rich.console.Console(stderr=True)
 
-    for ft in supported_filetypes:
+    for ft in known_filetypes:
         identifiers = [ft] + list(
-            map(lambda e: e[1:], supported_filetypes[ft]["file extensions"])
+            map(lambda e: e[1:], known_filetypes[ft]["file extensions"])
         )
         if filetype.lower() in identifiers:
             fn = getattr(Examples, ft)
             print(fn())
+            print("HUH")
             return 0
 
     econsole.print(f"[red]ERROR: Unrecognized file type '{filetype}'.[/red]")
@@ -233,7 +235,7 @@ def split(
         Don't print status info while rendering.
     """
     console = rich.console.Console(stderr=True, quiet=quiet)
-    econsole = rich.console.Console(stderr=True, quiet=quiet)
+    econsole = rich.console.Console(stderr=True)
 
     font = "poinson"
     banner = art.text2art(f"CompuDoc", font=font)
@@ -242,15 +244,24 @@ def split(
 
     if filetype is None:
         filetype = detect_filetype(input_file)
-    if filetype is None and comment_line_str is None:
-        console.print(f"Could not determine filetype for {input_file}")
-        return 1
 
-    if comment_line_str is None:
-        comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
-
-    if comment_line_pattern is None:
-        comment_line_pattern = comment_line_str + "{{CODE}}"
+    # we need a comment line pattern.
+    # if it is given, great...
+    if comment_line_pattern is not None:
+        pass
+    else:
+        # if its not given, but the comment line string is given, great...
+        if comment_line_str is not None:
+            comment_line_pattern = comment_line_str + "{{CODE}}"
+        else:
+            # if it is not, we need to look it up.
+            if filetype is not None:
+                comment_line_pattern = known_filetypes[filetype]["comment line pattern"]
+            else:
+                econsole.print(
+                    f"Could not determine filetype for {input_file} and no comment line pattern was given."
+                )
+                return 1
 
     text_output = pathlib.Path(str(input_file) + text_suffix)
     code_output = pathlib.Path(str(input_file) + code_suffix)
@@ -362,7 +373,7 @@ def merge(
         Don't print status info while rendering.
     """
     console = rich.console.Console(stderr=True, quiet=quiet)
-    econsole = rich.console.Console(stderr=True, quiet=quiet)
+    econsole = rich.console.Console(stderr=True)
 
     font = "poinson"
     banner = art.text2art(f"CompuDoc", font=font)
@@ -371,15 +382,24 @@ def merge(
 
     if filetype is None:
         filetype = detect_filetype(input_file)
-    if filetype is None and comment_line_str is None:
-        console.print(f"Could not determine filetype for {input_file}")
-        return 1
 
-    if comment_line_str is None:
-        comment_line_str = supported_filetypes[filetype]["comment line strings"][0]
-
-    if comment_line_pattern is None:
-        comment_line_pattern = comment_line_str + "{{CODE}}"
+    # we need a comment line pattern.
+    # if it is given, great...
+    if comment_line_pattern is not None:
+        pass
+    else:
+        # if its not given, but the comment line string is given, great...
+        if comment_line_str is not None:
+            comment_line_pattern = comment_line_str + "{{CODE}}"
+        else:
+            # if it is not, we need to look it up.
+            if filetype is not None:
+                comment_line_pattern = known_filetypes[filetype]["comment line pattern"]
+            else:
+                econsole.print(
+                    f"Could not determine filetype for {input_file} and no comment line pattern was given."
+                )
+                return 1
 
     text_file = pathlib.Path(str(input_file) + text_suffix)
     code_file = pathlib.Path(str(input_file) + code_suffix)

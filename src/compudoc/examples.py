@@ -48,6 +48,7 @@ exposure will be {{energy | Lx}}, or {{energy.to("J")|Lx}}.
 
 \end{document}
 """
+
     def markdown():
         return r"""
 ---
@@ -180,4 +181,17 @@ plot sin(k*x)
 
 """
 
+    def typst():
+        return r"""
+#title[Example Document]
+// {{{
+// import pint
+// import math
+// ureg = pint.UnitRegistry()
+// Q_ = ureg.Quantity
+// l = Q_(532,'nm')
+// k = 2*math.pi/l
+// }}}
 
+Wavenumber is related to wavelength, $k = (2 pi) / lambda$. The wavenumber of a {{l}} laser is {{k}}.
+"""
