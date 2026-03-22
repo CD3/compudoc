@@ -8,7 +8,7 @@ run-cram-tests:
   cd tests/cram && uv run cram *.t
 
 run-pytest-tests *opts:
-  uv run pytest -vv {{opts}}
+  uv run nox -s tests -- {{opts}}
 
 test: run-pytest-tests run-cram-tests
 

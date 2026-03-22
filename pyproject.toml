@@ -10,16 +10,13 @@ readme = "README.md"
 authors = [
   { name = "CD Clark III", email = "clifton.clark@gmail.com" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.9,<=3.11"
 
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
   "art>=6.4",
@@ -37,6 +34,7 @@ dev = [
   "clirunner>=0.1",
   "cram>=0.7",
   "mypy>=1.14.1",
+  "nox>=2024.10.9",
   "pytest>=8.3.4",
 ]
 

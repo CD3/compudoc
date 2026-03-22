@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv sync:*)",
+      "Bash(uv run nox:*)",
+      "Bash(uv run:*)",
+      "Bash(uv python:*)",
+      "Bash(just test:*)"
+    ]
+  }
+}

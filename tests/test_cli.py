@@ -1,5 +1,6 @@
 import pathlib
 
+import pytest
 from clirunner import CliRunner
 
 from compudoc.__main__ import app
@@ -116,6 +117,7 @@ plot sin(2.1*x)
         )
 
 
+@pytest.mark.skip(reason="/usr/bin/python not available on all systems")
 def test_interpreter(tmp_path):
     with workingdir(tmp_path):
         input_file = pathlib.Path("main.tex")
