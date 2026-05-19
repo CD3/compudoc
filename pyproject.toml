@@ -4,7 +4,7 @@ requires = [ "hatchling==1.26.3" ]
 
 [project]
 name = "compudoc"
-version = "0.12.0"
+version = "0.13.0"
 description = "Add python calculations to your LaTeX, Typst, and Markdown documents."
 readme = "README.md"
 authors = [
@@ -26,7 +26,7 @@ dependencies = [
   "fspathtree>=1",
   "jinja2>=3.1.4",
   "pyparsing[diagrams]>=3.1.4",
-  "typing-extensions>=4.15.0",
+  "typing-extensions>=4.15",
 ]
 scripts."compudoc" = "compudoc.__main__:app"
 
