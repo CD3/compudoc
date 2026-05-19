@@ -48,6 +48,8 @@
   % }}}
   msg = {{msg}}
   $ compudoc merge --quiet doc.tex.cd --code-indent 0
+  Error: doc.tex.cd.merged already exists. Give --overwrite to overwrite.
+  One or more output files exists and --overwrite was not given. Exiting.
   [2]
   $ compudoc merge --quiet doc.tex.cd --code-indent 0 --overwrite
   $ ls | sort

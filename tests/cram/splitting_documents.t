@@ -35,6 +35,9 @@
   #COMMENTED-CODE-BLOCK-1
   msg = "HI"
   $ compudoc split --quiet doc.tex.cd
+  Error: doc.tex.cd.text already exists. Give --overwrite to overwrite.
+  Error: doc.tex.cd.code already exists. Give --overwrite to overwrite.
+  One or more output files exists and --overwrite was not given. Exiting.
   [2]
   $ rm *
   $ cat << EOF > doc.md.cd

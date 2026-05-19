@@ -6,7 +6,6 @@ from compudoc.execution_engines import *
 
 
 def test_initializing_engine():
-
     async def run():
         assert True
         assert True
@@ -43,7 +42,7 @@ def test_initializing_engine():
 
         await process.stop()
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     loop.run_until_complete(run())
 
 

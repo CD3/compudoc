@@ -189,6 +189,7 @@ def example(filetype: str = "latex", /):
         )
         if filetype.lower() in identifiers:
             fn = getattr(Examples, ft)
+            print(fn())
             return 0
 
     econsole.print(f"[red]ERROR: Unrecognized file type '{filetype}'.[/red]")

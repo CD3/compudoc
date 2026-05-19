@@ -32,6 +32,21 @@ class ExecutionEngine:
     async def flush_stderr(self):
         raise RuntimeError(f"{inspect.stack()[0][3]}() method not implemented")
 
+    def get_setup_code(self):
+        """
+        Return code string to setup the execution engine. This can setup some
+        configuration options and/or define useful utility functions.
+        """
+        return textwrap.dedent(
+            """
+            from pathlib import Path
+
+            def load(filename:str):
+              exec( Path(filename).read_text() )
+
+            """
+        )
+
 
 class Python(ExecutionEngine):
     """
@@ -106,7 +121,6 @@ class Python(ExecutionEngine):
         return None
 
     async def getline_stderr(self, timeout=0.1):
-
         try:
             line = await asyncio.wait_for(
                 self.process.stderr.readline(), timeout=timeout

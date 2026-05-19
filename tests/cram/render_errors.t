@@ -8,5 +8,6 @@
   $ ls
   doc.tex.cd
   $ compudoc doc.tex.cd --quiet
-  There was a problem rendering document.
+  There was a problem rendering document: There was a problem executing code block
+  1.
   [2]
