@@ -152,13 +152,13 @@ def main(
     try:
         doc.parse(input_text)
     except RuntimeError as e:
-        econsole.print("There was a problem parsing document.")
+        econsole.print(f"There was a problem parsing document: {e}")
         return 2
 
     try:
         output_text = doc.render(strip_comment_blocks=strip_comment_blocks, quiet=quiet)
     except RuntimeError as e:
-        econsole.print("There was a problem rendering document.")
+        econsole.print(f"There was a problem rendering document: {e}")
         return 2
 
     output_file.write_text(output_text)

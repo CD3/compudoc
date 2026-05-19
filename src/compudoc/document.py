@@ -295,7 +295,11 @@ class Document:
 
             return rendered_document
 
-        loop = asyncio.get_event_loop()
+        # FIX: event loop is not running in main loop with newer versions of Python?
+        try:
+            loop = asyncio.get_event_loop()
+        except:
+            loop = asyncio.new_event_loop()
         rendered_text = loop.run_until_complete(run())
         return rendered_text
 
