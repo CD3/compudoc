@@ -18,6 +18,8 @@ class Examples:
 % import pint
 % ureg = pint.UnitRegistry()
 % Q_ = ureg.Quantity
+% 
+% from pyErrorProp import sigfig_round
 % }}}
 
 % add a jinja2 fillter to format units with siunitx
@@ -28,7 +30,10 @@ class Examples:
 % def Lx_filter(input,fmt=""):
 %   text = fmt_filter(input,fmt+"Lx")
 %   return text
-% jinja2_env.filters["Lx"] = Lx_filter
+%
+% add_jinja2_filter('Lx', Lx_filter)
+% add_jinja2_filter('round', lambda input, sigfigs=3: sigfig_round(input,sigfigs))
+% add_jinja2_filter('rLx', lambda input, fmt="", sigfigs=3: fmt_filter(sigfig_round(input,sigfigs),fmt+"Lx" ) )
 % }}}
 
 Laser exposures are characterized by a power ($\Phi$), energy ($Q$), radiant exposure ($H$),

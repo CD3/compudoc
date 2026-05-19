@@ -26,6 +26,7 @@ dependencies = [
   "fspathtree>=1",
   "jinja2>=3.1.4",
   "pint>=0.24.3",
+  "pyerrorprop>=3.1.2",
   "pyparsing[diagrams]>=3.1.4",
 ]
 scripts."compudoc" = "compudoc.__main__:app"

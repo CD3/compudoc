@@ -33,19 +33,7 @@ class ExecutionEngine:
         raise RuntimeError(f"{inspect.stack()[0][3]}() method not implemented")
 
     def get_setup_code(self):
-        """
-        Return code string to setup the execution engine. This can setup some
-        configuration options and/or define useful utility functions.
-        """
-        return textwrap.dedent(
-            """
-            from pathlib import Path
-
-            def load(filename:str):
-              exec( Path(filename).read_text() )
-
-            """
-        )
+        raise RuntimeError(f"{inspect.stack()[0][3]}() method not implemented")
 
 
 class Python(ExecutionEngine):
@@ -57,6 +45,20 @@ class Python(ExecutionEngine):
         self.process: asyncio.Process = None
         self.executable = executable if executable is not None else sys.executable
 
+    def get_setup_code(self):
+        return textwrap.dedent(
+            """
+            from pathlib import Path
+
+            def load(filename:str):
+              '''
+              Load code from filename inline.
+              '''
+              exec( Path(filename).read_text(), globals() )
+
+            """
+        )
+
     async def start(self):
         self.process: asyncio.Process = await asyncio.create_subprocess_exec(
             self.executable,
@@ -67,6 +69,12 @@ class Python(ExecutionEngine):
         )
 
         await self.send("import sys\n")
+        await self.send(self.get_setup_code())
+        # error = await self.flush_stderr()
+        # if error != "":
+        #     raise RuntimeError(
+        #         rf"There was an error running setup code:\n\n{self.get_setup_code()}\n\nSTDERR: '{error}'."
+        #     )
 
         return None
 

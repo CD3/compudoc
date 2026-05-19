@@ -1,4 +1,5 @@
 import asyncio
+import pathlib
 
 import pytest
 
@@ -70,3 +71,31 @@ def test_execution_engine_method_implementation_errors():
         asyncio.run(execution_engine.flush_stdout())
     with pytest.raises(RuntimeError):
         asyncio.run(execution_engine.flush_stderr())
+    with pytest.raises(RuntimeError):
+        asyncio.run(execution_engine.get_setup_code())
+
+
+def test_python_engine_setup_code():
+    process = Python()
+    assert "def load" in process.get_setup_code()
+
+
+def test_python_engine_loading_file():
+    process = Python()
+    pathlib.Path("setup.py").write_text("""
+def msg():
+  return "hello world!!"
+""")
+
+    async def run():
+        process = Python()
+        await process.start()
+
+        result = await process.eval("load('setup.py')")
+        result = await process.eval("msg()")
+        assert result == "'hello world!!'"
+
+        await process.stop()
+
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(run())

@@ -24,14 +24,16 @@
   import jinja2
   import pathlib
   jinja2_env = jinja2.Environment(keep_trailing_newline=True)
+  
+  def add_jinja2_filter(name,function):
+      jinja2_env.filters[name] = function
+  
   def fmt_filter(input, spec=""):
     return ("{"+f":{spec}"+"}").format(input)
    (glob)
-  def insert_filter(filename):
-    return pathlib.Path(filename).read_text()
+  add_jinja2_filter('fmt', fmt_filter)
+  add_jinja2_filter('insert', lambda filename: pathlib.Path(filename).read_text()  )
    (glob)
-  jinja2_env.filters['fmt'] = fmt_filter
-  jinja2_env.filters['insert'] = insert_filter
   #COMMENTED-CODE-BLOCK-1
   msg = "HI"
   $ compudoc merge --quiet doc.tex.cd
