@@ -9,5 +9,9 @@
   doc.tex.cd
   $ compudoc doc.tex.cd --quiet
   There was a problem rendering document: There was a problem executing code block
-  1.
+  1: >>> ... Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    File "<string>", line 1, in <module>
+  NameError: name 'missing' is not defined
+  
   [2]

@@ -235,7 +235,7 @@ class Document:
 
                     if "Traceback" in error:
                         raise RuntimeError(
-                            f"There was a problem executing code block {i}."
+                            f"There was a problem executing code block {i}: {error}"
                         )
 
                     if not strip_comment_blocks:
